@@ -2,7 +2,7 @@
 nixPkgs = ["nodejs"]
 
 [phases.install]
-cmds = ["cd bot && npm install"]
+cmds = ["npm install --production"]
 
 [start]
-cmd = "cd bot && npm start"
+cmd = "npm start"
