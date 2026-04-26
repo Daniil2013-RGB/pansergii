@@ -1,8 +1,12 @@
-require('dotenv').config({ path: '../.env' });
 const { Bot, InlineKeyboard } = require('grammy');
 
 const TOKEN   = process.env.TELEGRAM_BOT_TOKEN;
 const GAME_URL = process.env.GAME_URL || 'https://YOUR-SITE.netlify.app';
+
+if (!TOKEN) {
+    console.error('❌ TELEGRAM_BOT_TOKEN не встановлено!');
+    process.exit(1);
+}
 
 const bot = new Bot(TOKEN);
 
@@ -27,4 +31,4 @@ bot.command('help', async (ctx) => {
 });
 
 bot.start();
-console.log('🤖 Бот запущено!');
+console.log('🤖 Бот запущено! URL гри:', GAME_URL);
