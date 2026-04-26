@@ -184,8 +184,7 @@ async function saveToFirebase() {
 
 function scheduleSave() {
     saveToLocal();
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(saveToFirebase, 3000);
+    saveToFirebase(); // Миттєве збереження
 }
 
 function showSaveStatus() {
