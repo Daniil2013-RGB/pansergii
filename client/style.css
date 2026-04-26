@@ -459,3 +459,242 @@ body.tg-theme {
     z-index: 200;
 }
 #save-status.show { opacity: 1; }
+
+/* Лідерборд */
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.leaderboard-item {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.rank {
+    background: var(--gradient-gold);
+    color: #000;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9em;
+}
+
+.player-name {
+    flex: 1;
+    font-weight: 600;
+}
+
+.player-score {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+/* Кейси */
+.dev-notice {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 24px;
+    border: 2px dashed var(--text-secondary);
+}
+
+.dev-notice h3 {
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.cases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.case-item {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.case-item:hover {
+    transform: translateY(-4px);
+}
+
+.case-item.secret-case {
+    background: linear-gradient(135deg, #FFD700 0%, #FF6B6B 100%);
+    color: #000;
+}
+
+.case-icon {
+    font-size: 3em;
+    margin-bottom: 12px;
+}
+
+.case-item h3 {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+.case-item p {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.case-price {
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.case-timer {
+    font-size: 0.8em;
+    color: #FF6B6B;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.case-button {
+    background: var(--gradient-gold);
+    color: #000;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+}
+
+.case-button:disabled {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}
+
+/* Осколки */
+.fragments-section {
+    margin-top: 32px;
+}
+
+.fragments-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.fragment-item {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fragment-icon {
+    font-size: 2em;
+}
+
+.fragment-name {
+    font-size: 0.8em;
+    color: var(--text-secondary);
+}
+
+.fragment-count {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* Панель основателя */
+.founder-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.founder-badge {
+    background: var(--gradient-gold);
+    color: #000;
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.founder-icon {
+    font-size: 2em;
+}
+
+.founder-text {
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+.founder-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.founder-btn {
+    background: var(--gradient);
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.founder-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Адаптивна навігація */
+.bottom-nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.bottom-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-item {
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+/* Секретні карточки з лічильником */
+.secret-cards-counter {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background: var(--gradient-gold);
+    color: #000;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 700;
+    z-index: 200;
+}

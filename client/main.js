@@ -49,6 +49,16 @@ let currentAccessoryId = null;
 let totalClicks = 0;
 let totalEarned = 0;
 let saveTimeout = null;
+let secretCardsFound = 0;
+let fragments = {
+    standard: 0,
+    rare: 0,
+    smart: 0,
+    diamond: 0,
+    competitive: 0,
+    strange: 0
+};
+let currentTheme = 'default';
 
 // ─── DOM ───────────────────────────────────────────────────────────────────────
 const scoreDisplay = document.getElementById('score');
@@ -90,7 +100,7 @@ const upgrades = [
     { id: 'upgrade-click-3',    name: 'Кулак Сергія',         description: '+10 очок за клік',  value: 10,   cost: 5000,   type: 'click' },
     { id: 'upgrade-auto-3',     name: 'Королівство',          description: '+20 очок/сек',      value: 20,   cost: 10000,  type: 'auto'  },
     { id: 'upgrade-word-of-god',name: 'Слово Пана Сергія',    description: '+500 оч. за клік',  value: 500,  cost: 50000,  type: 'click' },
-    { id: 'upgrade-secret-1',   name: '🎁 Секретна сила',     description: '+1000 оч./сек',     value: 1000, cost: 0,      type: 'auto', secret: true }
+    { id: 'upgrade-secret-1',   name: '🎁 Секретна сила',     description: '+100 оч./сек',      value: 100,  cost: 0,      type: 'auto', secret: true }
 ];
 
 const allAccessories = {
@@ -116,6 +126,9 @@ async function loadFromFirebase() {
             currentAccessoryId = d.currentAccessoryId ?? null;
             totalClicks = d.totalClicks ?? 0;
             totalEarned = d.totalEarned ?? 0;
+            secretCardsFound = d.secretCardsFound ?? 0;
+            fragments = d.fragments ?? { standard: 0, rare: 0, smart: 0, diamond: 0, competitive: 0, strange: 0 };
+            currentTheme = d.currentTheme ?? 'default';
         }
     } catch (e) {
         console.warn('Firebase недоступний, використовуємо localStorage', e);
@@ -136,13 +149,16 @@ function loadFromLocal() {
     currentAccessoryId = d.currentAccessoryId ?? null;
     totalClicks = d.totalClicks ?? 0;
     totalEarned = d.totalEarned ?? 0;
+    secretCardsFound = d.secretCardsFound ?? 0;
+    fragments = d.fragments ?? { standard: 0, rare: 0, smart: 0, diamond: 0, competitive: 0, strange: 0 };
+    currentTheme = d.currentTheme ?? 'default';
 }
 
 function saveToLocal() {
     localStorage.setItem('serhiyGameSave', JSON.stringify({
         score, clickValue, autoClickValue, level,
         purchasedUpgrades, purchasedAccessories, currentAccessoryId,
-        totalClicks, totalEarned
+        totalClicks, totalEarned, secretCardsFound, fragments, currentTheme
     }));
 }
 
@@ -152,7 +168,7 @@ async function saveToFirebase() {
         await setDoc(ref, {
             score, clickValue, autoClickValue, level,
             purchasedUpgrades, purchasedAccessories, currentAccessoryId,
-            totalClicks, totalEarned,
+            totalClicks, totalEarned, secretCardsFound, fragments, currentTheme,
             updatedAt: new Date().toISOString(),
             telegramUser: telegramUser ? {
                 id: telegramUser.id,
@@ -176,6 +192,47 @@ function showSaveStatus() {
     saveStatusEl.classList.add('show');
     setTimeout(() => saveStatusEl.classList.remove('show'), 1500);
 }
+
+// ─── Проверка основателя ──────────────────────────────────────────────────────
+function checkFounderAccess() {
+    const isFounder = telegramUser?.username === 'dankaklytoii';
+    if (isFounder) {
+        document.getElementById('founder-nav').style.display = 'block';
+        document.getElementById('tab-founder').style.display = 'block';
+    }
+    return isFounder;
+}
+
+// Функции для основателя (глобальные для onclick)
+window.giveCoins = function() {
+    score += 10000;
+    updateUI();
+    scheduleSave();
+    alert('💰 +10,000 очок додано!');
+};
+
+window.unlockAll = function() {
+    upgrades.forEach(upgrade => {
+        if (!purchasedUpgrades[upgrade.id]) {
+            purchasedUpgrades[upgrade.id] = true;
+            if (upgrade.type === 'click') clickValue += upgrade.value;
+            else autoClickValue += upgrade.value;
+        }
+    });
+    Object.keys(allAccessories).forEach(id => {
+        purchasedAccessories[id] = true;
+    });
+    updateUI();
+    scheduleSave();
+    alert('🔓 Все розблоковано!');
+};
+
+window.resetProgress = function() {
+    if (confirm('Ви впевнені? Це видалить весь прогрес!')) {
+        localStorage.removeItem('serhiyGameSave');
+        location.reload();
+    }
+};
 
 // ─── Навігація ─────────────────────────────────────────────────────────────────
 function setupNavigation() {
@@ -203,12 +260,40 @@ function updateUI() {
     totalClicksEl.textContent = totalClicks.toLocaleString();
     totalEarnedEl.textContent = Math.floor(totalEarned).toLocaleString();
     
+    // Оновити лічильник секретних карточок
+    updateSecretCardsCounter();
+    
+    // Оновити осколки
+    updateFragmentsDisplay();
+    
     // Оновити ім'я профілю
     if (telegramUser) {
         profileName.textContent = telegramUser.first_name || telegramUser.username || 'Гравець';
     }
     
     updateButtonStates();
+}
+
+function updateSecretCardsCounter() {
+    let counter = document.getElementById('secret-cards-counter');
+    if (!counter) {
+        counter = document.createElement('div');
+        counter.id = 'secret-cards-counter';
+        counter.className = 'secret-cards-counter';
+        document.body.appendChild(counter);
+    }
+    counter.textContent = `🎁 Знайдено: ${secretCardsFound}/5`;
+    
+    if (secretCardsFound >= 5) {
+        counter.style.display = 'none';
+    }
+}
+
+function updateFragmentsDisplay() {
+    Object.keys(fragments).forEach(type => {
+        const el = document.getElementById(`fragment-${type}`);
+        if (el) el.textContent = fragments[type];
+    });
 }
 
 function updateLevelAndCheckReward() {
@@ -363,6 +448,7 @@ function toggleAccessory(accessory) {
 // ─── Секретні карточки ─────────────────────────────────────────────────────────
 function spawnSecretCard() {
     if (document.querySelector('.secret-card')) return; // Тільки одна за раз
+    if (secretCardsFound >= 5) return; // Максимум 5 карточок
     
     const card = document.createElement('div');
     card.className = 'secret-card';
@@ -370,7 +456,7 @@ function spawnSecretCard() {
     
     // Рандомна позиція
     const x = Math.random() * (window.innerWidth - 60);
-    const y = Math.random() * (window.innerHeight - 160) + 60; // Не під навігацією
+    const y = Math.random() * (window.innerHeight - 160) + 60;
     
     card.style.left = x + 'px';
     card.style.top = y + 'px';
@@ -384,31 +470,35 @@ function spawnSecretCard() {
     
     // Клік по карточці
     card.addEventListener('click', () => {
-        // Розблокувати секретний апгрейд
-        if (!purchasedUpgrades['upgrade-secret-1']) {
-            purchasedUpgrades['upgrade-secret-1'] = true;
-            autoClickValue += 1000;
-            alert('🎉 Ви знайшли секретну карточку!\n+1000 очок за секунду назавжди!');
-            
-            // Перегенерувати магазин щоб показати секретний апгрейд
-            generateShopItems(upgrades, upgradesGrid);
-            updateUI();
-            scheduleSave();
-        } else {
-            // Просто бонус
-            score += 5000;
-            alert('🎁 Бонус: +5000 очок!');
-            updateUI();
-            scheduleSave();
+        secretCardsFound++;
+        
+        if (secretCardsFound === 1) {
+            // Перша карточка - розблокувати секретний апгрейд
+            if (!purchasedUpgrades['upgrade-secret-1']) {
+                purchasedUpgrades['upgrade-secret-1'] = true;
+                autoClickValue += 100;
+                alert('🎉 Перша секретна карточка!\n+100 очок за секунду назавжди!');
+                generateShopItems(upgrades, upgradesGrid);
+            }
+        } else if (secretCardsFound <= 5) {
+            // 2-5 карточки - по 1000 очок
+            score += 1000;
+            alert(`🎁 Секретна карточка ${secretCardsFound}/5!\n+1000 очок!`);
         }
         
+        if (secretCardsFound >= 5) {
+            alert('🏆 Ви знайшли всі 5 секретних карточок!\nБільше не з\'являтимуться.');
+        }
+        
+        updateUI();
+        scheduleSave();
         card.remove();
     });
 }
 
-// Спавн секретних карточок кожні 30-60 секунд
+// Спавн секретних карточок кожні 30-60 секунд (тільки якщо < 5)
 setInterval(() => {
-    if (Math.random() < 0.3) { // 30% шанс
+    if (secretCardsFound < 5 && Math.random() < 0.3) {
         spawnSecretCard();
     }
 }, 45000);
@@ -417,6 +507,7 @@ setInterval(() => {
 async function init() {
     await loadFromFirebase();
     
+    checkFounderAccess();
     setupNavigation();
     generateShopItems(upgrades, upgradesGrid);
     generateShopItems(Object.values(allAccessories), accessoriesGrid);
@@ -433,8 +524,10 @@ async function init() {
     loadingScreen.style.display = 'none';
     appDiv.style.display = 'block';
     
-    // Перша секретна карточка через 10 секунд
-    setTimeout(spawnSecretCard, 10000);
+    // Перша секретна карточка через 10 секунд (якщо < 5)
+    if (secretCardsFound < 5) {
+        setTimeout(spawnSecretCard, 10000);
+    }
 }
 
 init();

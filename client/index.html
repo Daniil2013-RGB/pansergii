@@ -82,7 +82,110 @@
         </div>
     </div>
 
-    <!-- Вкладка: Профіль -->
+    <!-- Вкладка: Лідерборд -->
+    <div id="tab-leaderboard" class="tab-content">
+        <h2 class="section-title">🏆 Лідерборд</h2>
+        <div class="leaderboard-list" id="leaderboard-list">
+            <div class="leaderboard-item">
+                <span class="rank">1</span>
+                <span class="player-name">Завантаження...</span>
+                <span class="player-score">-</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Кейси (В розробці) -->
+    <div id="tab-cases" class="tab-content">
+        <h2 class="section-title">📦 Кейси</h2>
+        <div class="dev-notice">
+            <h3>🚧 В розробці</h3>
+            <p>Скоро тут з'являться кейси з осколками вчителів!</p>
+        </div>
+        <div class="cases-grid">
+            <div class="case-item">
+                <div class="case-icon">📦</div>
+                <h3>Базовий кейс</h3>
+                <p>Стандартний + Рідкісний осколок</p>
+                <div class="case-price">100 очок</div>
+                <button class="case-button" disabled>Скоро</button>
+            </div>
+            <div class="case-item">
+                <div class="case-icon">🎁</div>
+                <h3>Епік кейс</h3>
+                <p>Розумний + Алмазний осколок</p>
+                <div class="case-price">1,000 очок</div>
+                <button class="case-button" disabled>Скоро</button>
+            </div>
+            <div class="case-item">
+                <div class="case-icon">💎</div>
+                <h3>Легендарний кейс</h3>
+                <p>Змагальний осколок</p>
+                <div class="case-price">5,000 очок</div>
+                <button class="case-button" disabled>Скоро</button>
+            </div>
+            <div class="case-item secret-case">
+                <div class="case-icon">🌟</div>
+                <h3>Секретний кейс</h3>
+                <p>Дивний осколок + всі інші</p>
+                <div class="case-price">1,000,000 очок</div>
+                <div class="case-timer">Доступний 5 днів</div>
+                <button class="case-button" disabled>Скоро</button>
+            </div>
+        </div>
+        
+        <div class="fragments-section">
+            <h3>🧩 Мої осколки</h3>
+            <div class="fragments-grid">
+                <div class="fragment-item">
+                    <span class="fragment-icon">⚪</span>
+                    <span class="fragment-name">Стандартний</span>
+                    <span class="fragment-count" id="fragment-standard">0</span>
+                </div>
+                <div class="fragment-item">
+                    <span class="fragment-icon">🔵</span>
+                    <span class="fragment-name">Рідкісний</span>
+                    <span class="fragment-count" id="fragment-rare">0</span>
+                </div>
+                <div class="fragment-item">
+                    <span class="fragment-icon">🧠</span>
+                    <span class="fragment-name">Розумний</span>
+                    <span class="fragment-count" id="fragment-smart">0</span>
+                </div>
+                <div class="fragment-item">
+                    <span class="fragment-icon">💎</span>
+                    <span class="fragment-name">Алмазний</span>
+                    <span class="fragment-count" id="fragment-diamond">0</span>
+                </div>
+                <div class="fragment-item">
+                    <span class="fragment-icon">🏆</span>
+                    <span class="fragment-name">Змагальний</span>
+                    <span class="fragment-count" id="fragment-competitive">0</span>
+                </div>
+                <div class="fragment-item">
+                    <span class="fragment-icon">❓</span>
+                    <span class="fragment-name">Дивний</span>
+                    <span class="fragment-count" id="fragment-strange">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Основатель (тільки для dankaklytoii) -->
+    <div id="tab-founder" class="tab-content" style="display: none;">
+        <h2 class="section-title">👑 Панель основателя</h2>
+        <div class="founder-panel">
+            <div class="founder-badge">
+                <span class="founder-icon">👑</span>
+                <span class="founder-text">Основатель проекту</span>
+            </div>
+            <div class="founder-controls">
+                <button class="founder-btn" onclick="giveCoins()">💰 +10,000 очок</button>
+                <button class="founder-btn" onclick="unlockAll()">🔓 Розблокувати все</button>
+                <button class="founder-btn" onclick="resetProgress()">🔄 Скинути прогрес</button>
+                <button class="founder-btn" onclick="spawnSecretCard()">🎁 Створити карточку</button>
+            </div>
+        </div>
+    </div>
     <div id="tab-profile" class="tab-content">
         <div class="profile-header">
             <div class="profile-avatar">👤</div>
@@ -110,6 +213,14 @@
             <span class="nav-icon">🛒</span>
             <span>Магазин</span>
         </button>
+        <button class="nav-item" data-tab="leaderboard">
+            <span class="nav-icon">🏆</span>
+            <span>Топ</span>
+        </button>
+        <button class="nav-item" data-tab="cases">
+            <span class="nav-icon">📦</span>
+            <span>Кейси</span>
+        </button>
         <button class="nav-item" data-tab="news">
             <span class="nav-icon">📰</span>
             <span>Новини</span>
@@ -117,6 +228,10 @@
         <button class="nav-item" data-tab="profile">
             <span class="nav-icon">👤</span>
             <span>Профіль</span>
+        </button>
+        <button class="nav-item" id="founder-nav" data-tab="founder" style="display: none;">
+            <span class="nav-icon">👑</span>
+            <span>Основатель</span>
         </button>
     </nav>
 </div>
