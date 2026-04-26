@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Пан Сергій</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<div id="loading-screen">
+    <div class="loader-text">Завантаження...</div>
+</div>
+
+<div id="app" style="display:none">
+    <div class="game-container">
+        <h1 class="game-title">Пан Сергій</h1>
+        <div class="stats-container">
+            <div class="stat-item">
+                <span class="stat-label">Очки:</span>
+                <span id="score" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Рівень:</span>
+                <span id="level" class="stat-value">1</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Кліків:</span>
+                <span id="click-value" class="stat-value">1</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Пасивний дохід:</span>
+                <span id="auto-click-value" class="stat-value">0</span>
+            </div>
+        </div>
+
+        <div class="tap-zone" id="main-character">
+            <img src="https://imgpx.com/is29RsUfHLAk.jpg" alt="Пан Сергій" class="main-character-img">
+        </div>
+
+        <div class="shop-tabs">
+            <button id="upgrades-tab-btn" class="tab-button">Удосконалення</button>
+            <button id="accessories-tab-btn" class="tab-button">Аксесуари</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальні вікна -->
+<div id="upgrades-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 class="modal-title">Удосконалення</h2>
+        <div class="shop-grid" id="upgrades-grid"></div>
+    </div>
+</div>
+
+<div id="accessories-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 class="modal-title">Аксесуари</h2>
+        <div class="shop-grid" id="accessories-grid"></div>
+    </div>
+</div>
+
+<div id="level-up-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2 class="modal-title">Новий рівень!</h2>
+        <p id="level-up-message"></p>
+        <button class="modal-button" id="claim-reward-btn">Отримати нагороду!</button>
+    </div>
+</div>
+
+<!-- Firebase SDK (CDN, модульний) -->
+<script type="module" src="main.js"></script>
+</body>
+</html>

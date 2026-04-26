@@ -1,0 +1,9 @@
+{
+  "name": "sergiitap",
+  "version": "1.0.0",
+  "description": "Пан Сергій Tap Game - Telegram Mini App",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {}
+}

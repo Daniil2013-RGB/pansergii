@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+    background-color: #212121;
+    font-family: 'Roboto', sans-serif;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Екран завантаження */
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background: #212121;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+.loader-text {
+    color: #64ffda;
+    font-size: 1.5em;
+    animation: pulse 1s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.game-container {
+    text-align: center;
+    background-color: #313131;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+    width: 90%;
+    max-width: 600px;
+    border: 2px solid #64ffda;
+}
+
+.game-title {
+    color: #64ffda;
+    font-size: 3em;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px #000;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #2b2b2b;
+    border-radius: 10px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+.stat-label { font-size: 0.9em; color: #bdbdbd; }
+
+.stat-value {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #e0e0e0;
+    text-shadow: 1px 1px 2px #000;
+}
+
+.tap-zone {
+    width: 200px;
+    height: 200px;
+    background-color: #424242;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px auto;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out, box-shadow 0.2s ease-in-out;
+    position: relative;
+    box-shadow: 0 0 30px #64ffda;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tap-zone:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 15px #64ffda;
+}
+
+.main-character-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Анімація +N при кліку */
+.click-popup {
+    position: absolute;
+    color: #64ffda;
+    font-size: 1.5em;
+    font-weight: 700;
+    pointer-events: none;
+    animation: floatUp 0.8s ease-out forwards;
+    z-index: 10;
+}
+@keyframes floatUp {
+    0%   { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-60px); }
+}
+
+.shop-tabs {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.tab-button {
+    background-color: #424242;
+    color: #64ffda;
+    border: 1px solid #64ffda;
+    padding: 15px 30px;
+    margin: 0 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.tab-button:hover {
+    background-color: #64ffda;
+    color: #212121;
+}
+
+/* Модальні вікна */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.9);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #313131;
+    padding: 40px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 0 40px rgba(0,0,0,0.8);
+    position: relative;
+    border: 2px solid #64ffda;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    color: #bdbdbd;
+    font-size: 2.5em;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.close-btn:hover { color: #64ffda; }
+
+.modal-title {
+    text-align: center;
+    color: #64ffda;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.shop-item {
+    background-color: #424242;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.shop-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.shop-item h3 { font-size: 1.3em; margin-top: 0; color: #64ffda; }
+.shop-item p  { font-size: 1em; opacity: 0.8; }
+
+.shop-button {
+    background-color: #64ffda;
+    color: #212121;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.3s;
+}
+.shop-button:hover { background-color: #92ffd4; }
+.shop-button:disabled { background-color: #555; color: #999; cursor: not-allowed; }
+
+/* Аксесуари */
+.accessory {
+    position: absolute;
+    pointer-events: none;
+    transition: transform 0.3s, opacity 0.3s;
+}
+.accessory-hat {
+    width: 120px; height: 40px;
+    top: -20px; left: 50%;
+    transform: translateX(-50%);
+    background-color: #8B4513;
+    border-radius: 20px 20px 0 0;
+}
+.accessory-glasses {
+    width: 100px; height: 10px;
+    top: 50px; left: 50%;
+    transform: translateX(-50%);
+    background-color: #1a1a1a;
+    border: 2px solid #f0f0f0;
+    border-radius: 5px;
+}
+.accessory-gold-hat {
+    width: 120px; height: 40px;
+    top: -20px; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(to right, gold, #ffcc00);
+    border-radius: 20px 20px 0 0;
+}
+.accessory-crown {
+    width: 150px; height: 70px;
+    top: -40px; left: 50%;
+    transform: translateX(-50%);
+    background: url('https://i.imgur.com/your-crown-image.png') no-repeat center center;
+    background-size: contain;
+}
+
+.modal-button {
+    background-color: #64ffda;
+    color: #212121;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+/* Статус збереження */
+#save-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #64ffda;
+    color: #212121;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+#save-status.show { opacity: 1; }
