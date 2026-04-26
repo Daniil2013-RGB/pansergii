@@ -22,6 +22,7 @@ let telegramUser = null;
 if (tg) {
     tg.ready();
     tg.expand();
+    tg.enableClosingConfirmation(); // Подтверждение при закрытии
     telegramUser = tg.initDataUnsafe?.user || null;
     
     // Адаптація під тему Telegram
@@ -426,12 +427,10 @@ function showLevelUpNotification(message, rewardId) {
 }
 
 function onTap(e) {
-    console.log('Tap event:', e.type); // Отладка
+    console.log('Tap event:', e.type, e.pointerType); // Отладка
     
-    // Предотвратить двойное срабатывание
-    if (e.type === 'touchstart') {
-        e.preventDefault();
-    }
+    // Предотвратить дефолтное поведение и двойное срабатывание
+    e.preventDefault();
     
     score += clickValue;
     totalClicks++;
@@ -445,17 +444,24 @@ function onTap(e) {
     popup.className = 'click-popup';
     popup.textContent = `+${clickValue}`;
     const rect = mainCharacter.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
     popup.style.left = (clientX - rect.left) + 'px';
     popup.style.top = (clientY - rect.top) + 'px';
     mainCharacter.appendChild(popup);
     setTimeout(() => popup.remove(), 1000);
 }
 
-// Підтримка і кліку і тачу
-mainCharacter.addEventListener('click', onTap);
-mainCharacter.addEventListener('touchstart', onTap, { passive: false });
+// Використовуємо pointerdown - універсальна подія для миші і тачу
+if (mainCharacter) {
+    console.log('Main character element found, adding event listener');
+    mainCharacter.addEventListener('pointerdown', onTap);
+    
+    // Додатковий обробник для старих браузерів
+    mainCharacter.addEventListener('touchstart', onTap, { passive: false });
+} else {
+    console.error('Main character element not found!');
+}
 
 // Пасивний дохід
 setInterval(() => {
