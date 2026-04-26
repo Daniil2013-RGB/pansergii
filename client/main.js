@@ -173,10 +173,11 @@ async function saveToFirebase() {
             telegramUser: telegramUser ? {
                 id: telegramUser.id,
                 username: telegramUser.username || '',
-                firstName: telegramUser.first_name || ''
+                firstName: telegramUser.first_name || '',
+                photoUrl: telegramUser.photo_url || ''
             } : null
         });
-        showSaveStatus();
+        // Видалено showSaveStatus() - більше не показуємо надпис
     } catch (e) {
         console.warn('Помилка збереження Firebase:', e);
     }
@@ -200,6 +201,49 @@ function checkFounderAccess() {
         document.getElementById('tab-founder').style.display = 'block';
     }
     return isFounder;
+}
+
+// ─── Лідерборд ─────────────────────────────────────────────────────────────────
+async function loadLeaderboard() {
+    try {
+        const { collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+        
+        const playersRef = collection(db, 'players');
+        const q = query(playersRef, orderBy('score', 'desc'), limit(50));
+        const snapshot = await getDocs(q);
+        
+        const leaderboardList = document.getElementById('leaderboard-list');
+        leaderboardList.innerHTML = '';
+        
+        let rank = 1;
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const isCurrentUser = doc.id === userId;
+            
+            const item = document.createElement('div');
+            item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''}`;
+            
+            const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+            const playerName = data.telegramUser?.firstName || data.telegramUser?.username || 'Гравець';
+            const playerScore = Math.floor(data.score || 0).toLocaleString();
+            
+            item.innerHTML = `
+                <span class="rank">${rankEmoji}</span>
+                <span class="player-name">${playerName}${isCurrentUser ? ' (Ви)' : ''}</span>
+                <span class="player-score">${playerScore}</span>
+            `;
+            
+            leaderboardList.appendChild(item);
+            rank++;
+        });
+        
+        if (snapshot.empty) {
+            leaderboardList.innerHTML = '<div class="no-data">Поки що немає гравців</div>';
+        }
+    } catch (e) {
+        console.error('Помилка завантаження лідерборду:', e);
+        document.getElementById('leaderboard-list').innerHTML = '<div class="no-data">Помилка завантаження</div>';
+    }
 }
 
 // Функции для основателя (глобальные для onclick)
@@ -246,6 +290,11 @@ function setupNavigation() {
             // Показати відповідну вкладку
             tabContents.forEach(tab => tab.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            // Завантажити лідерборд при відкритті вкладки
+            if (tabId === 'leaderboard') {
+                loadLeaderboard();
+            }
         });
     });
 }
@@ -259,15 +308,34 @@ function updateUI() {
     totalClicksEl.textContent = totalClicks.toLocaleString();
     totalEarnedEl.textContent = Math.floor(totalEarned).toLocaleString();
     
+    // Оновити профіль
+    document.getElementById('profile-level').textContent = level;
+    document.getElementById('profile-secrets').textContent = `${secretCardsFound}/5`;
+    
     // Оновити лічильник секретних карточок
     updateSecretCardsCounter();
     
     // Оновити осколки
     updateFragmentsDisplay();
     
-    // Оновити ім'я профілю
+    // Оновити ім'я та аватарку профілю
     if (telegramUser) {
-        profileName.textContent = telegramUser.first_name || telegramUser.username || 'Гравець';
+        const name = telegramUser.first_name || telegramUser.username || 'Гравець';
+        profileName.textContent = name;
+        
+        const usernameEl = document.getElementById('profile-username');
+        if (telegramUser.username) {
+            usernameEl.textContent = '@' + telegramUser.username;
+        }
+        
+        // Завантажити аватарку якщо є
+        if (telegramUser.photo_url) {
+            const avatarImg = document.getElementById('profile-avatar-img');
+            const avatarEmoji = document.getElementById('profile-avatar-emoji');
+            avatarImg.src = telegramUser.photo_url;
+            avatarImg.style.display = 'block';
+            avatarEmoji.style.display = 'none';
+        }
     }
     
     updateButtonStates();
@@ -364,14 +432,15 @@ function generateShopItems(items, container) {
         div.className = 'shop-item';
         
         const priceText = item.cost > 0 ? `${item.cost.toLocaleString()} очок` : 'БЕЗКОШТОВНО';
+        const description = item.description || item.name || '';
         
         div.innerHTML = `
             <div class="shop-item-info">
-                <h3>${item.name}</h3>
-                <p>${item.description}</p>
+                <h3>${item.name || 'Предмет'}</h3>
+                <p>${description}</p>
                 <div class="shop-item-price">${priceText}</div>
             </div>
-            <button class="shop-button" data-id="${item.id}" data-cost="${item.cost}">
+            <button class="shop-button" data-id="${item.id}" data-cost="${item.cost || 0}">
                 Купити
             </button>
         `;
