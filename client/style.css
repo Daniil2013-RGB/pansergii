@@ -133,6 +133,8 @@ body.tg-theme {
     box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    z-index: 1;
 }
 
 .tap-zone:active {

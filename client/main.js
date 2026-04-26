@@ -426,6 +426,13 @@ function showLevelUpNotification(message, rewardId) {
 }
 
 function onTap(e) {
+    console.log('Tap event:', e.type); // Отладка
+    
+    // Предотвратить двойное срабатывание
+    if (e.type === 'touchstart') {
+        e.preventDefault();
+    }
+    
     score += clickValue;
     totalClicks++;
     totalEarned += clickValue;
@@ -446,11 +453,9 @@ function onTap(e) {
     setTimeout(() => popup.remove(), 1000);
 }
 
+// Підтримка і кліку і тачу
 mainCharacter.addEventListener('click', onTap);
-mainCharacter.addEventListener('touchstart', (e) => { 
-    e.preventDefault(); 
-    onTap(e); 
-}, { passive: false });
+mainCharacter.addEventListener('touchstart', onTap, { passive: false });
 
 // Пасивний дохід
 setInterval(() => {
