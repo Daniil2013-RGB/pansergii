@@ -212,33 +212,74 @@ async function loadLeaderboard() {
         const q = query(playersRef, orderBy('score', 'desc'), limit(50));
         const snapshot = await getDocs(q);
         
+        const players = [];
+        snapshot.forEach((doc) => {
+            players.push({ id: doc.id, ...doc.data() });
+        });
+        
+        // Заповнити подіум (топ-3)
+        const podiumPlaces = document.querySelectorAll('.podium-place');
+        const podiumOrder = [1, 0, 2]; // 2-е, 1-е, 3-є місце
+        
+        podiumOrder.forEach((index, podiumIndex) => {
+            const place = podiumPlaces[podiumIndex];
+            const player = players[index];
+            
+            if (player) {
+                const avatar = place.querySelector('.podium-avatar');
+                const avatarImg = avatar.querySelector('.podium-avatar-img');
+                const avatarEmoji = avatar.querySelector('.podium-avatar-emoji');
+                const name = place.querySelector('.podium-name');
+                const score = place.querySelector('.podium-score');
+                
+                name.textContent = player.telegramUser?.firstName || player.telegramUser?.username || 'Гравець';
+                score.textContent = Math.floor(player.score || 0).toLocaleString();
+                
+                // Аватарка
+                if (player.telegramUser?.photoUrl) {
+                    avatarImg.src = player.telegramUser.photoUrl;
+                    avatarImg.style.display = 'block';
+                    avatarEmoji.style.display = 'none';
+                } else {
+                    avatarImg.style.display = 'none';
+                    avatarEmoji.style.display = 'block';
+                }
+            }
+        });
+        
+        // Заповнити решту списку (з 4-го місця)
         const leaderboardList = document.getElementById('leaderboard-list');
         leaderboardList.innerHTML = '';
         
-        let rank = 1;
-        snapshot.forEach((doc) => {
-            const data = doc.data();
-            const isCurrentUser = doc.id === userId;
+        for (let i = 3; i < players.length; i++) {
+            const player = players[i];
+            const isCurrentUser = player.id === userId;
             
             const item = document.createElement('div');
             item.className = `leaderboard-item ${isCurrentUser ? 'current-user' : ''}`;
             
-            const rankEmoji = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-            const playerName = data.telegramUser?.firstName || data.telegramUser?.username || 'Гравець';
-            const playerScore = Math.floor(data.score || 0).toLocaleString();
+            const rank = i + 1;
+            const playerName = player.telegramUser?.firstName || player.telegramUser?.username || 'Гравець';
+            const playerScore = Math.floor(player.score || 0).toLocaleString();
+            
+            // Аватарка
+            let avatarHTML = '<div class="leaderboard-avatar"><span class="leaderboard-avatar-emoji">👤</span></div>';
+            if (player.telegramUser?.photoUrl) {
+                avatarHTML = `<div class="leaderboard-avatar"><img src="${player.telegramUser.photoUrl}" /></div>`;
+            }
             
             item.innerHTML = `
-                <span class="rank">${rankEmoji}</span>
+                <span class="rank">${rank}</span>
+                ${avatarHTML}
                 <span class="player-name">${playerName}${isCurrentUser ? ' (Ви)' : ''}</span>
                 <span class="player-score">${playerScore}</span>
             `;
             
             leaderboardList.appendChild(item);
-            rank++;
-        });
+        }
         
-        if (snapshot.empty) {
-            leaderboardList.innerHTML = '<div class="no-data">Поки що немає гравців</div>';
+        if (players.length <= 3) {
+            leaderboardList.innerHTML = '<div class="no-data">Поки що немає інших гравців</div>';
         }
     } catch (e) {
         console.error('Помилка завантаження лідерборду:', e);
