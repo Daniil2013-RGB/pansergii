@@ -23,9 +23,15 @@ if (tg) {
     tg.ready();
     tg.expand();
     telegramUser = tg.initDataUnsafe?.user || null;
+    
+    // Адаптація під тему Telegram
+    if (tg.themeParams) {
+        document.body.classList.add('tg-theme');
+        document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
+        document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
+    }
 }
 
-// Якщо не в Telegram — використовуємо тестовий ID для розробки
 const userId = telegramUser?.id?.toString() || 'dev_' + (localStorage.getItem('devUserId') || (() => {
     const id = Math.random().toString(36).slice(2);
     localStorage.setItem('devUserId', id);
@@ -40,26 +46,27 @@ let level = 1;
 let purchasedUpgrades = {};
 let purchasedAccessories = {};
 let currentAccessoryId = null;
+let totalClicks = 0;
+let totalEarned = 0;
 let saveTimeout = null;
 
 // ─── DOM ───────────────────────────────────────────────────────────────────────
-const scoreDisplay        = document.getElementById('score');
-const levelDisplay        = document.getElementById('level');
-const clickValueDisplay   = document.getElementById('click-value');
-const autoClickDisplay    = document.getElementById('auto-click-value');
-const mainCharacter       = document.getElementById('main-character');
-const upgradesModal       = document.getElementById('upgrades-modal');
-const accessoriesModal    = document.getElementById('accessories-modal');
-const levelUpModal        = document.getElementById('level-up-modal');
-const upgradesGrid        = document.getElementById('upgrades-grid');
-const accessoriesGrid     = document.getElementById('accessories-grid');
-const upgradesBtn         = document.getElementById('upgrades-tab-btn');
-const accessoriesBtn      = document.getElementById('accessories-tab-btn');
-const closeButtons        = document.querySelectorAll('.close-btn');
-const claimRewardBtn      = document.getElementById('claim-reward-btn');
-const levelUpMessage      = document.getElementById('level-up-message');
-const loadingScreen       = document.getElementById('loading-screen');
-const appDiv              = document.getElementById('app');
+const scoreDisplay = document.getElementById('score');
+const levelDisplay = document.getElementById('level');
+const clickValueDisplay = document.getElementById('click-value');
+const autoClickDisplay = document.getElementById('auto-click-value');
+const mainCharacter = document.getElementById('main-character');
+const upgradesGrid = document.getElementById('upgrades-grid');
+const accessoriesGrid = document.getElementById('accessories-grid');
+const loadingScreen = document.getElementById('loading-screen');
+const appDiv = document.getElementById('app');
+const profileName = document.getElementById('profile-name');
+const totalClicksEl = document.getElementById('total-clicks');
+const totalEarnedEl = document.getElementById('total-earned');
+
+// Навігація
+const navItems = document.querySelectorAll('.nav-item');
+const tabContents = document.querySelectorAll('.tab-content');
 
 // Статус збереження
 const saveStatusEl = document.createElement('div');
@@ -76,13 +83,14 @@ const levels = [
 ];
 
 const upgrades = [
-    { id: 'upgrade-click-1',    name: 'Покращений клік',      description: '+1 очко за клік',    value: 1,   cost: 100,   type: 'click' },
-    { id: 'upgrade-auto-1',     name: 'Мураха-робітник',      description: '+1 очко/сек',         value: 1,   cost: 500,   type: 'auto'  },
-    { id: 'upgrade-click-2',    name: 'Сильний клік',         description: '+3 очка за клік',     value: 3,   cost: 1000,  type: 'click' },
-    { id: 'upgrade-auto-2',     name: 'Маленька ферма',       description: '+5 очок/сек',         value: 5,   cost: 2000,  type: 'auto'  },
-    { id: 'upgrade-click-3',    name: 'Кулак Сергія',         description: '+10 очок за клік',    value: 10,  cost: 5000,  type: 'click' },
-    { id: 'upgrade-auto-3',     name: 'Королівство',          description: '+20 очок/сек',        value: 20,  cost: 10000, type: 'auto'  },
-    { id: 'upgrade-word-of-god',name: 'Слово Пана Сергія',    description: '+500 оч. за клік',    value: 500, cost: 50000, type: 'click' }
+    { id: 'upgrade-click-1',    name: 'Покращений клік',      description: '+1 очко за клік',    value: 1,    cost: 100,    type: 'click' },
+    { id: 'upgrade-auto-1',     name: 'Мураха-робітник',      description: '+1 очко/сек',       value: 1,    cost: 500,    type: 'auto'  },
+    { id: 'upgrade-click-2',    name: 'Сильний клік',         description: '+3 очка за клік',   value: 3,    cost: 1000,   type: 'click' },
+    { id: 'upgrade-auto-2',     name: 'Маленька ферма',       description: '+5 очок/сек',       value: 5,    cost: 2000,   type: 'auto'  },
+    { id: 'upgrade-click-3',    name: 'Кулак Сергія',         description: '+10 очок за клік',  value: 10,   cost: 5000,   type: 'click' },
+    { id: 'upgrade-auto-3',     name: 'Королівство',          description: '+20 очок/сек',      value: 20,   cost: 10000,  type: 'auto'  },
+    { id: 'upgrade-word-of-god',name: 'Слово Пана Сергія',    description: '+500 оч. за клік',  value: 500,  cost: 50000,  type: 'click' },
+    { id: 'upgrade-secret-1',   name: '🎁 Секретна сила',     description: '+1000 оч./сек',     value: 1000, cost: 0,      type: 'auto', secret: true }
 ];
 
 const allAccessories = {
@@ -92,20 +100,22 @@ const allAccessories = {
     'acc-crown':    { id: 'acc-crown',    name: 'Корона',       className: 'accessory-crown'    }
 };
 
-// ─── Firebase: завантаження / збереження ──────────────────────────────────────
+// ─── Firebase ──────────────────────────────────────────────────────────────────
 async function loadFromFirebase() {
     try {
         const ref = doc(db, 'players', userId);
         const snap = await getDoc(ref);
         if (snap.exists()) {
             const d = snap.data();
-            score              = d.score              ?? 0;
-            clickValue         = d.clickValue         ?? 1;
-            autoClickValue     = d.autoClickValue     ?? 0;
-            level              = d.level              ?? 1;
-            purchasedUpgrades  = d.purchasedUpgrades  ?? {};
+            score = d.score ?? 0;
+            clickValue = d.clickValue ?? 1;
+            autoClickValue = d.autoClickValue ?? 0;
+            level = d.level ?? 1;
+            purchasedUpgrades = d.purchasedUpgrades ?? {};
             purchasedAccessories = d.purchasedAccessories ?? {};
             currentAccessoryId = d.currentAccessoryId ?? null;
+            totalClicks = d.totalClicks ?? 0;
+            totalEarned = d.totalEarned ?? 0;
         }
     } catch (e) {
         console.warn('Firebase недоступний, використовуємо localStorage', e);
@@ -117,19 +127,22 @@ function loadFromLocal() {
     const saved = localStorage.getItem('serhiyGameSave');
     if (!saved) return;
     const d = JSON.parse(saved);
-    score              = d.score              ?? 0;
-    clickValue         = d.clickValue         ?? 1;
-    autoClickValue     = d.autoClickValue     ?? 0;
-    level              = d.level              ?? 1;
-    purchasedUpgrades  = d.purchasedUpgrades  ?? {};
+    score = d.score ?? 0;
+    clickValue = d.clickValue ?? 1;
+    autoClickValue = d.autoClickValue ?? 0;
+    level = d.level ?? 1;
+    purchasedUpgrades = d.purchasedUpgrades ?? {};
     purchasedAccessories = d.purchasedAccessories ?? {};
     currentAccessoryId = d.currentAccessoryId ?? null;
+    totalClicks = d.totalClicks ?? 0;
+    totalEarned = d.totalEarned ?? 0;
 }
 
 function saveToLocal() {
     localStorage.setItem('serhiyGameSave', JSON.stringify({
         score, clickValue, autoClickValue, level,
-        purchasedUpgrades, purchasedAccessories, currentAccessoryId
+        purchasedUpgrades, purchasedAccessories, currentAccessoryId,
+        totalClicks, totalEarned
     }));
 }
 
@@ -139,6 +152,7 @@ async function saveToFirebase() {
         await setDoc(ref, {
             score, clickValue, autoClickValue, level,
             purchasedUpgrades, purchasedAccessories, currentAccessoryId,
+            totalClicks, totalEarned,
             updatedAt: new Date().toISOString(),
             telegramUser: telegramUser ? {
                 id: telegramUser.id,
@@ -152,7 +166,6 @@ async function saveToFirebase() {
     }
 }
 
-// Дебаунс збереження — не більше 1 разу на 3 секунди
 function scheduleSave() {
     saveToLocal();
     clearTimeout(saveTimeout);
@@ -164,12 +177,37 @@ function showSaveStatus() {
     setTimeout(() => saveStatusEl.classList.remove('show'), 1500);
 }
 
+// ─── Навігація ─────────────────────────────────────────────────────────────────
+function setupNavigation() {
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const tabId = item.dataset.tab;
+            
+            // Оновити активну кнопку
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Показати відповідну вкладку
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        });
+    });
+}
+
 // ─── Логіка гри ───────────────────────────────────────────────────────────────
 function updateUI() {
-    scoreDisplay.textContent      = Math.floor(score);
-    clickValueDisplay.textContent = clickValue;
-    autoClickDisplay.textContent  = autoClickValue;
-    levelDisplay.textContent      = level;
+    scoreDisplay.textContent = Math.floor(score).toLocaleString();
+    clickValueDisplay.textContent = clickValue.toLocaleString();
+    autoClickDisplay.textContent = autoClickValue.toLocaleString();
+    levelDisplay.textContent = level;
+    totalClicksEl.textContent = totalClicks.toLocaleString();
+    totalEarnedEl.textContent = Math.floor(totalEarned).toLocaleString();
+    
+    // Оновити ім'я профілю
+    if (telegramUser) {
+        profileName.textContent = telegramUser.first_name || telegramUser.username || 'Гравець';
+    }
+    
     updateButtonStates();
 }
 
@@ -181,24 +219,23 @@ function updateLevelAndCheckReward() {
     if (newLevel > level) {
         level = newLevel;
         const info = levels[level - 2];
-        showLevelUpModal(info.message, info.rewardId);
+        showLevelUpNotification(info.message, info.rewardId);
     }
 }
 
-function showLevelUpModal(message, rewardId) {
-    levelUpMessage.textContent = message;
-    levelUpModal.style.display = 'flex';
-    claimRewardBtn.onclick = () => {
-        purchasedAccessories[rewardId] = true;
-        toggleAccessory(allAccessories[rewardId]);
-        levelUpModal.style.display = 'none';
-        updateButtonStates();
-        scheduleSave();
-    };
+function showLevelUpNotification(message, rewardId) {
+    // Простий alert замість модального вікна
+    alert(message);
+    purchasedAccessories[rewardId] = true;
+    toggleAccessory(allAccessories[rewardId]);
+    updateButtonStates();
+    scheduleSave();
 }
 
 function onTap(e) {
     score += clickValue;
+    totalClicks++;
+    totalEarned += clickValue;
     updateUI();
     updateLevelAndCheckReward();
     scheduleSave();
@@ -211,18 +248,22 @@ function onTap(e) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     popup.style.left = (clientX - rect.left) + 'px';
-    popup.style.top  = (clientY - rect.top)  + 'px';
+    popup.style.top = (clientY - rect.top) + 'px';
     mainCharacter.appendChild(popup);
-    setTimeout(() => popup.remove(), 800);
+    setTimeout(() => popup.remove(), 1000);
 }
 
 mainCharacter.addEventListener('click', onTap);
-mainCharacter.addEventListener('touchstart', (e) => { e.preventDefault(); onTap(e); }, { passive: false });
+mainCharacter.addEventListener('touchstart', (e) => { 
+    e.preventDefault(); 
+    onTap(e); 
+}, { passive: false });
 
 // Пасивний дохід
 setInterval(() => {
     if (autoClickValue > 0) {
         score += autoClickValue;
+        totalEarned += autoClickValue;
         updateUI();
         updateLevelAndCheckReward();
         scheduleSave();
@@ -233,14 +274,22 @@ setInterval(() => {
 function generateShopItems(items, container) {
     container.innerHTML = '';
     items.forEach(item => {
+        if (item.secret && !purchasedUpgrades[item.id]) return; // Ховати секретні до покупки
+        
         const div = document.createElement('div');
         div.className = 'shop-item';
-        const priceText = item.cost !== undefined ? `Ціна: ${item.cost} очок` : 'Нагорода за рівень';
+        
+        const priceText = item.cost > 0 ? `${item.cost.toLocaleString()} очок` : 'БЕЗКОШТОВНО';
+        
         div.innerHTML = `
-            <h3>${item.name}</h3>
-            <p>${item.description || ''}</p>
-            <p>${priceText}</p>
-            <button class="shop-button" data-id="${item.id}" data-cost="${item.cost || 0}">Купити</button>
+            <div class="shop-item-info">
+                <h3>${item.name}</h3>
+                <p>${item.description}</p>
+                <div class="shop-item-price">${priceText}</div>
+            </div>
+            <button class="shop-button" data-id="${item.id}" data-cost="${item.cost}">
+                Купити
+            </button>
         `;
         container.appendChild(div);
     });
@@ -248,7 +297,7 @@ function generateShopItems(items, container) {
 
 function updateButtonStates() {
     document.querySelectorAll('.shop-button').forEach(btn => {
-        const id   = btn.dataset.id;
+        const id = btn.dataset.id;
         const cost = parseInt(btn.dataset.cost);
         const isAcc = allAccessories[id] !== undefined;
 
@@ -257,7 +306,7 @@ function updateButtonStates() {
                 btn.textContent = currentAccessoryId === id ? 'Зняти' : 'Надіти';
                 btn.disabled = false;
             } else {
-                btn.textContent = 'Нагорода за рівень';
+                btn.textContent = 'Нагорода';
                 btn.disabled = true;
             }
         } else {
@@ -265,35 +314,33 @@ function updateButtonStates() {
                 btn.textContent = 'Куплено ✓';
                 btn.disabled = true;
             } else {
-                btn.textContent = `Купити (${cost} оч.)`;
-                btn.disabled = score < cost;
+                btn.textContent = cost > 0 ? 'Купити' : 'Отримати';
+                btn.disabled = cost > 0 && score < cost;
             }
         }
     });
 }
 
-upgradesModal.addEventListener('click', (e) => {
+// Обробка покупок
+document.addEventListener('click', (e) => {
     const btn = e.target.closest('.shop-button');
     if (!btn) return;
+    
     const id = btn.dataset.id;
     const upgrade = upgrades.find(u => u.id === id);
-    if (!upgrade || purchasedUpgrades[id] || score < upgrade.cost) return;
-
-    score -= upgrade.cost;
-    purchasedUpgrades[id] = true;
-    if (upgrade.type === 'click') clickValue += upgrade.value;
-    else autoClickValue += upgrade.value;
-
-    updateUI();
-    scheduleSave();
-});
-
-accessoriesModal.addEventListener('click', (e) => {
-    const btn = e.target.closest('.shop-button');
-    if (!btn) return;
-    const id = btn.dataset.id;
-    if (purchasedAccessories[id]) {
-        toggleAccessory(allAccessories[id]);
+    const accessory = allAccessories[id];
+    
+    if (upgrade && !purchasedUpgrades[id] && score >= upgrade.cost) {
+        score -= upgrade.cost;
+        purchasedUpgrades[id] = true;
+        
+        if (upgrade.type === 'click') clickValue += upgrade.value;
+        else autoClickValue += upgrade.value;
+        
+        updateUI();
+        scheduleSave();
+    } else if (accessory && purchasedAccessories[id]) {
+        toggleAccessory(accessory);
         updateButtonStates();
         scheduleSave();
     }
@@ -313,39 +360,81 @@ function toggleAccessory(accessory) {
     }
 }
 
-// ─── Модальні вікна ───────────────────────────────────────────────────────────
-function setupModals() {
-    upgradesBtn.onclick    = () => { upgradesModal.style.display = 'flex';    updateButtonStates(); };
-    accessoriesBtn.onclick = () => { accessoriesModal.style.display = 'flex'; updateButtonStates(); };
-
-    closeButtons.forEach(btn => {
-        btn.onclick = () => btn.closest('.modal').style.display = 'none';
+// ─── Секретні карточки ─────────────────────────────────────────────────────────
+function spawnSecretCard() {
+    if (document.querySelector('.secret-card')) return; // Тільки одна за раз
+    
+    const card = document.createElement('div');
+    card.className = 'secret-card';
+    card.textContent = '🎁';
+    
+    // Рандомна позиція
+    const x = Math.random() * (window.innerWidth - 60);
+    const y = Math.random() * (window.innerHeight - 160) + 60; // Не під навігацією
+    
+    card.style.left = x + 'px';
+    card.style.top = y + 'px';
+    
+    document.body.appendChild(card);
+    
+    // Автовидалення через 5 секунд
+    setTimeout(() => {
+        if (card.parentNode) card.remove();
+    }, 5000);
+    
+    // Клік по карточці
+    card.addEventListener('click', () => {
+        // Розблокувати секретний апгрейд
+        if (!purchasedUpgrades['upgrade-secret-1']) {
+            purchasedUpgrades['upgrade-secret-1'] = true;
+            autoClickValue += 1000;
+            alert('🎉 Ви знайшли секретну карточку!\n+1000 очок за секунду назавжди!');
+            
+            // Перегенерувати магазин щоб показати секретний апгрейд
+            generateShopItems(upgrades, upgradesGrid);
+            updateUI();
+            scheduleSave();
+        } else {
+            // Просто бонус
+            score += 5000;
+            alert('🎁 Бонус: +5000 очок!');
+            updateUI();
+            scheduleSave();
+        }
+        
+        card.remove();
     });
-
-    window.onclick = (e) => {
-        if (e.target.classList.contains('modal')) e.target.style.display = 'none';
-    };
 }
 
-// ─── Старт ────────────────────────────────────────────────────────────────────
+// Спавн секретних карточок кожні 30-60 секунд
+setInterval(() => {
+    if (Math.random() < 0.3) { // 30% шанс
+        spawnSecretCard();
+    }
+}, 45000);
+
+// ─── Ініціалізація ────────────────────────────────────────────────────────────
 async function init() {
     await loadFromFirebase();
-
+    
+    setupNavigation();
     generateShopItems(upgrades, upgradesGrid);
     generateShopItems(Object.values(allAccessories), accessoriesGrid);
-    setupModals();
-
+    
     if (currentAccessoryId && allAccessories[currentAccessoryId]) {
         const el = document.createElement('div');
         el.className = `accessory ${allAccessories[currentAccessoryId].className}`;
         mainCharacter.appendChild(el);
     }
-
+    
     updateUI();
-
+    
     // Ховаємо екран завантаження
     loadingScreen.style.display = 'none';
     appDiv.style.display = 'block';
+    
+    // Перша секретна карточка через 10 секунд
+    setTimeout(spawnSecretCard, 10000);
 }
 
 init();

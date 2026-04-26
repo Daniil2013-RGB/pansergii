@@ -2,78 +2,125 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Пан Сергій</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
 <div id="loading-screen">
+    <div class="loader-spinner"></div>
     <div class="loader-text">Завантаження...</div>
 </div>
 
 <div id="app" style="display:none">
-    <div class="game-container">
-        <h1 class="game-title">Пан Сергій</h1>
-        <div class="stats-container">
-            <div class="stat-item">
-                <span class="stat-label">Очки:</span>
-                <span id="score" class="stat-value">0</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Рівень:</span>
-                <span id="level" class="stat-value">1</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Кліків:</span>
-                <span id="click-value" class="stat-value">1</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Пасивний дохід:</span>
-                <span id="auto-click-value" class="stat-value">0</span>
+    
+    <!-- Вкладка: Гра -->
+    <div id="tab-game" class="tab-content active">
+        <div class="header">
+            <h1 class="game-title">Пан Сергій</h1>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Очки</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Рівень</div>
+                    <div class="stat-value" id="level">1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">За клік</div>
+                    <div class="stat-value" id="click-value">1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">За секунду</div>
+                    <div class="stat-value" id="auto-click-value">0</div>
+                </div>
             </div>
         </div>
 
         <div class="tap-zone" id="main-character">
             <img src="https://imgpx.com/is29RsUfHLAk.jpg" alt="Пан Сергій" class="main-character-img">
         </div>
+    </div>
 
-        <div class="shop-tabs">
-            <button id="upgrades-tab-btn" class="tab-button">Удосконалення</button>
-            <button id="accessories-tab-btn" class="tab-button">Аксесуари</button>
+    <!-- Вкладка: Магазин -->
+    <div id="tab-shop" class="tab-content">
+        <div class="shop-section">
+            <h2 class="section-title">💪 Удосконалення</h2>
+            <div class="shop-grid" id="upgrades-grid"></div>
+        </div>
+        <div class="shop-section">
+            <h2 class="section-title">👔 Аксесуари</h2>
+            <div class="shop-grid" id="accessories-grid"></div>
         </div>
     </div>
-</div>
 
-<!-- Модальні вікна -->
-<div id="upgrades-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2 class="modal-title">Удосконалення</h2>
-        <div class="shop-grid" id="upgrades-grid"></div>
+    <!-- Вкладка: Новини -->
+    <div id="tab-news" class="tab-content">
+        <h2 class="section-title">📰 Новини</h2>
+        <div class="news-list">
+            <div class="news-card">
+                <div class="news-date">26 Квітня 2026</div>
+                <h3 class="news-title">🎉 Версія 1.5 — Telegram Mini App!</h3>
+                <p class="news-content">
+                    Ми нарешті перенесли гру в Telegram! Тепер ви можете грати прямо в месенджері, 
+                    ваш прогрес зберігається в хмарі Firebase, і ви можете змагатися з друзями!
+                </p>
+                <span class="news-badge">НОВА ВЕРСІЯ</span>
+            </div>
+            <div class="news-card">
+                <div class="news-date">26 Квітня 2026</div>
+                <h3 class="news-title">🎁 Секретні карточки!</h3>
+                <p class="news-content">
+                    Тепер по всьому додатку з'являються секретні золоті карточки. 
+                    Знайди їх і отримай +1000 монет за секунду! Вони з'являються рідко, тому будь уважний!
+                </p>
+                <span class="news-badge">EASTER EGG</span>
+            </div>
+        </div>
     </div>
-</div>
 
-<div id="accessories-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2 class="modal-title">Аксесуари</h2>
-        <div class="shop-grid" id="accessories-grid"></div>
+    <!-- Вкладка: Профіль -->
+    <div id="tab-profile" class="tab-content">
+        <div class="profile-header">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-name" id="profile-name">Гравець</div>
+        </div>
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div class="stat-label">Всього кліків</div>
+                <div class="stat-value" id="total-clicks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Зароблено</div>
+                <div class="stat-value" id="total-earned">0</div>
+            </div>
+        </div>
     </div>
+
+    <!-- Нижня навігація -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="game">
+            <span class="nav-icon">🎮</span>
+            <span>Гра</span>
+        </button>
+        <button class="nav-item" data-tab="shop">
+            <span class="nav-icon">🛒</span>
+            <span>Магазин</span>
+        </button>
+        <button class="nav-item" data-tab="news">
+            <span class="nav-icon">📰</span>
+            <span>Новини</span>
+        </button>
+        <button class="nav-item" data-tab="profile">
+            <span class="nav-icon">👤</span>
+            <span>Профіль</span>
+        </button>
+    </nav>
 </div>
 
-<div id="level-up-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2 class="modal-title">Новий рівень!</h2>
-        <p id="level-up-message"></p>
-        <button class="modal-button" id="claim-reward-btn">Отримати нагороду!</button>
-    </div>
-</div>
-
-<!-- Firebase SDK (CDN, модульний) -->
 <script type="module" src="main.js"></script>
 </body>
 </html>
