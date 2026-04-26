@@ -197,8 +197,8 @@ function showSaveStatus() {
 function checkFounderAccess() {
     const isFounder = telegramUser?.username === 'dankaklytoii';
     if (isFounder) {
-        document.getElementById('founder-nav').style.display = 'block';
-        document.getElementById('tab-founder').style.display = 'block';
+        // Показати тільки кнопку навігації, вкладка керується через .active
+        document.getElementById('founder-nav').style.display = 'flex';
     }
     return isFounder;
 }
