@@ -907,3 +907,36 @@ body.tg-theme {
     cursor: not-allowed;
     opacity: 0.8;
 }
+
+/* Кнопка ручного збереження */
+.manual-save-btn {
+    background: var(--gradient);
+    color: white;
+    border: none;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1em;
+    cursor: pointer;
+    width: 100%;
+    margin: 20px 0 8px 0;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.manual-save-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.manual-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.save-info {
+    text-align: center;
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}

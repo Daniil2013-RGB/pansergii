@@ -254,11 +254,8 @@ function scheduleSave() {
     // Миттєво зберегти в localStorage
     saveToLocal();
     
-    // Відкладене збереження в Firebase (debounce 3 секунди)
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        saveToFirebase();
-    }, 3000);
+    // НЕ зберігати в Firebase при кожній дії!
+    // Тільки localStorage для економії квоти
 }
 
 function showSaveStatus() {
@@ -424,6 +421,28 @@ window.claimCompensation = async function() {
     } catch (e) {
         console.error('Помилка отримання компенсації:', e);
         alert('❌ Помилка. Спробуйте ще раз.');
+    }
+};
+
+// Ручне збереження
+window.manualSave = async function() {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = '⏳ Зберігаємо...';
+    
+    try {
+        await saveToFirebase();
+        btn.textContent = '✅ Збережено!';
+        btn.style.background = '#4CAF50';
+        setTimeout(() => {
+            btn.textContent = '💾 Зберегти прогрес зараз';
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 2000);
+    } catch (e) {
+        btn.textContent = '❌ Помилка';
+        btn.disabled = false;
+        alert('Помилка збереження. Спробуйте ще раз.');
     }
 };
 
@@ -793,11 +812,11 @@ async function init() {
         }
     });
     
-    // Помірне автозбереження - кожні 30 секунд
+    // РІДКЕ автозбереження - кожні 2 ХВИЛИНИ (економія квоти)
     setInterval(async () => {
-        console.log('⏰ Автозбереження...');
+        console.log('⏰ Автозбереження (раз на 2 хв)...');
         await saveToFirebase();
-    }, 30000);
+    }, 120000); // 2 хвилини
 }
 
 init();
