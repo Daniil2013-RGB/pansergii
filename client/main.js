@@ -111,7 +111,7 @@ const allAccessories = {
     'acc-crown':    { id: 'acc-crown',    name: 'Корона',       className: 'accessory-crown'    }
 };
 
-// ─── Firebase ──────────────────────────────────────────────────────────────────
+// ─── Firebase: завантаження / збереження ──────────────────────────────────────
 async function loadFromFirebase() {
     try {
         const ref = doc(db, 'players', userId);
@@ -130,9 +130,21 @@ async function loadFromFirebase() {
             secretCardsFound = d.secretCardsFound ?? 0;
             fragments = d.fragments ?? { standard: 0, rare: 0, smart: 0, diamond: 0, competitive: 0, strange: 0 };
             currentTheme = d.currentTheme ?? 'default';
+            
+            console.log('✅ Завантажено з Firebase:', score, 'очок');
+            
+            // Зберегти в localStorage як кеш
+            saveToLocal();
+        } else {
+            console.log('⚠️ Немає даних в Firebase, створюємо новий профіль');
+            // Спробувати завантажити з localStorage (тільки для нових користувачів)
+            loadFromLocal();
+            // Одразу зберегти в Firebase
+            await saveToFirebase();
         }
     } catch (e) {
-        console.warn('Firebase недоступний, використовуємо localStorage', e);
+        console.error('❌ Помилка завантаження Firebase:', e);
+        // Якщо Firebase недоступний - використати localStorage
         loadFromLocal();
     }
 }
@@ -140,30 +152,50 @@ async function loadFromFirebase() {
 function loadFromLocal() {
     const saved = localStorage.getItem('serhiyGameSave');
     if (!saved) return;
-    const d = JSON.parse(saved);
-    score = d.score ?? 0;
-    clickValue = d.clickValue ?? 1;
-    autoClickValue = d.autoClickValue ?? 0;
-    level = d.level ?? 1;
-    purchasedUpgrades = d.purchasedUpgrades ?? {};
-    purchasedAccessories = d.purchasedAccessories ?? {};
-    currentAccessoryId = d.currentAccessoryId ?? null;
-    totalClicks = d.totalClicks ?? 0;
-    totalEarned = d.totalEarned ?? 0;
-    secretCardsFound = d.secretCardsFound ?? 0;
-    fragments = d.fragments ?? { standard: 0, rare: 0, smart: 0, diamond: 0, competitive: 0, strange: 0 };
-    currentTheme = d.currentTheme ?? 'default';
+    try {
+        const d = JSON.parse(saved);
+        score = d.score ?? 0;
+        clickValue = d.clickValue ?? 1;
+        autoClickValue = d.autoClickValue ?? 0;
+        level = d.level ?? 1;
+        purchasedUpgrades = d.purchasedUpgrades ?? {};
+        purchasedAccessories = d.purchasedAccessories ?? {};
+        currentAccessoryId = d.currentAccessoryId ?? null;
+        totalClicks = d.totalClicks ?? 0;
+        totalEarned = d.totalEarned ?? 0;
+        secretCardsFound = d.secretCardsFound ?? 0;
+        fragments = d.fragments ?? { standard: 0, rare: 0, smart: 0, diamond: 0, competitive: 0, strange: 0 };
+        currentTheme = d.currentTheme ?? 'default';
+        console.log('📦 Завантажено з localStorage (кеш)');
+    } catch (e) {
+        console.error('Помилка парсингу localStorage:', e);
+    }
 }
 
 function saveToLocal() {
-    localStorage.setItem('serhiyGameSave', JSON.stringify({
-        score, clickValue, autoClickValue, level,
-        purchasedUpgrades, purchasedAccessories, currentAccessoryId,
-        totalClicks, totalEarned, secretCardsFound, fragments, currentTheme
-    }));
+    try {
+        localStorage.setItem('serhiyGameSave', JSON.stringify({
+            score, clickValue, autoClickValue, level,
+            purchasedUpgrades, purchasedAccessories, currentAccessoryId,
+            totalClicks, totalEarned, secretCardsFound, fragments, currentTheme,
+            lastSaved: new Date().toISOString()
+        }));
+    } catch (e) {
+        console.error('Помилка збереження в localStorage:', e);
+    }
 }
 
+let saveInProgress = false;
+
 async function saveToFirebase() {
+    // Якщо вже йде збереження - пропустити
+    if (saveInProgress) {
+        console.log('⏳ Збереження вже в процесі, пропускаємо...');
+        return;
+    }
+    
+    saveInProgress = true;
+    
     try {
         const ref = doc(db, 'players', userId);
         const dataToSave = {
@@ -188,20 +220,34 @@ async function saveToFirebase() {
             } : null
         };
         
-        await setDoc(ref, dataToSave, { merge: true }); // merge: true щоб не перезаписувати все
-        console.log('✅ Збережено в Firebase:', score);
+        await setDoc(ref, dataToSave);
+        console.log('✅ Збережено в Firebase:', score, 'очок');
+        
+        // Оновити кеш
+        saveToLocal();
+        
     } catch (e) {
         console.error('❌ Помилка збереження Firebase:', e);
-        // Спробувати ще раз через 2 секунди
-        setTimeout(() => saveToFirebase(), 2000);
+        // Спробувати ще раз через 3 секунди
+        setTimeout(() => {
+            saveInProgress = false;
+            saveToFirebase();
+        }, 3000);
+        return;
+    } finally {
+        saveInProgress = false;
     }
 }
 
 function scheduleSave() {
+    // Миттєво зберегти в localStorage
     saveToLocal();
-    // Відкладене збереження в Firebase (debounce 1 сек)
+    
+    // Відкладене збереження в Firebase (debounce 500мс)
     clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(saveToFirebase, 1000);
+    saveTimeout = setTimeout(() => {
+        saveToFirebase();
+    }, 500);
 }
 
 function showSaveStatus() {
@@ -710,25 +756,55 @@ async function init() {
         setTimeout(spawnSecretCard, 10000);
     }
     
-    // Збереження при закритті/виході
-    window.addEventListener('beforeunload', () => {
+    // Збереження при закритті/виході (синхронне)
+    window.addEventListener('beforeunload', (e) => {
+        // Синхронне збереження
         saveToLocal();
+        
+        // Спробувати зберегти в Firebase синхронно через sendBeacon
+        try {
+            const ref = doc(db, 'players', userId);
+            const dataToSave = JSON.stringify({
+                score, clickValue, autoClickValue, level,
+                purchasedUpgrades, purchasedAccessories, currentAccessoryId,
+                totalClicks, totalEarned, secretCardsFound, fragments, currentTheme,
+                updatedAt: new Date().toISOString()
+            });
+            
+            // Використати Fetch API з keepalive
+            fetch(`https://firestore.googleapis.com/v1/projects/pansergiitap/databases/(default)/documents/players/${userId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: dataToSave,
+                keepalive: true
+            }).catch(err => console.error('Помилка збереження при виході:', err));
+            
+        } catch (err) {
+            console.error('Помилка:', err);
+        }
+        
+        // Форсувати збереження
         saveToFirebase();
     });
     
     // Збереження при паузі (Telegram)
-    document.addEventListener('visibilitychange', () => {
+    document.addEventListener('visibilitychange', async () => {
         if (document.hidden) {
+            console.log('📱 Додаток згорнуто, зберігаємо...');
             saveToLocal();
-            saveToFirebase();
+            await saveToFirebase();
+        } else {
+            console.log('📱 Додаток відкрито, перезавантажуємо...');
+            await loadFromFirebase();
+            updateUI();
         }
     });
     
-    // Періодичне збереження кожні 10 секунд
-    setInterval(() => {
-        saveToLocal();
-        saveToFirebase();
-    }, 10000);
+    // Періодичне збереження кожні 5 секунд
+    setInterval(async () => {
+        console.log('⏰ Автозбереження...');
+        await saveToFirebase();
+    }, 5000);
 }
 
 init();
