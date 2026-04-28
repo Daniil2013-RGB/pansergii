@@ -22,7 +22,7 @@ let telegramUser = null;
 if (tg) {
     tg.ready();
     tg.expand();
-    tg.enableClosingConfirmation(); // Подтверждение при закрытии
+    // Убрали enableClosingConfirmation - не поддерживается в версии 6.0
     telegramUser = tg.initDataUnsafe?.user || null;
     
     // Адаптація під тему Telegram
@@ -32,12 +32,7 @@ if (tg) {
         document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
     }
     
-    // Обробник закриття додатку
-    tg.onEvent('viewportChanged', () => {
-        console.log('Viewport changed, saving...');
-        saveToLocal();
-        saveToFirebase();
-    });
+    // УБРАЛИ обробник viewportChanged - він спамить Firebase
 }
 
 const userId = telegramUser?.id?.toString() || 'dev_' + (localStorage.getItem('devUserId') || (() => {
