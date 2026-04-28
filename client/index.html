@@ -269,11 +269,15 @@
         </div>
         
         <!-- Кнопка ручного збереження -->
-        <button class="manual-save-btn" onclick="manualSave()">
-            💾 Зберегти прогрес зараз
+        <div class="warning-box">
+            ⚠️ Firebase тимчасово відключено через перевищення квоти.<br>
+            Прогрес зберігається локально. Завтра увімкнемо хмарне збереження!
+        </div>
+        <button class="manual-save-btn" onclick="manualSave()" disabled>
+            💾 Зберегти прогрес (Firebase відключено)
         </button>
         <div class="save-info">
-            Автозбереження: кожні 2 хвилини + при виході
+            Зараз працює тільки локальне збереження
         </div>
         
         <div class="profile-stats">

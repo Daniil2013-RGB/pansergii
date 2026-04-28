@@ -940,3 +940,16 @@ body.tg-theme {
     color: var(--text-secondary);
     margin-bottom: 20px;
 }
+
+/* Попередження */
+.warning-box {
+    background: rgba(255, 152, 0, 0.1);
+    border: 2px solid #FF9800;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 0.9em;
+    line-height: 1.6;
+    color: #FFA726;
+}

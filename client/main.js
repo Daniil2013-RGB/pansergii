@@ -114,7 +114,16 @@ const allAccessories = {
 };
 
 // ─── Firebase: завантаження / збереження ──────────────────────────────────────
+// ТИМЧАСОВО ВІДКЛЮЧЕНО через перевищення квоти
+// Використовуємо тільки localStorage до завтра
+
 async function loadFromFirebase() {
+    console.log('⚠️ Firebase тимчасово відключено (квота перевищена)');
+    console.log('📦 Використовуємо localStorage');
+    loadFromLocal();
+    return;
+    
+    /* УВІМКНУТИ ЗАВТРА:
     try {
         const ref = doc(db, 'players', userId);
         const snap = await getDoc(ref);
@@ -134,21 +143,17 @@ async function loadFromFirebase() {
             currentTheme = d.currentTheme ?? 'default';
             
             console.log('✅ Завантажено з Firebase:', score, 'очок');
-            
-            // Зберегти в localStorage як кеш
             saveToLocal();
         } else {
             console.log('⚠️ Немає даних в Firebase, створюємо новий профіль');
-            // Спробувати завантажити з localStorage (тільки для нових користувачів)
             loadFromLocal();
-            // Одразу зберегти в Firebase
             await saveToFirebase();
         }
     } catch (e) {
         console.error('❌ Помилка завантаження Firebase:', e);
-        // Якщо Firebase недоступний - використати localStorage
         loadFromLocal();
     }
+    */
 }
 
 function loadFromLocal() {
@@ -191,6 +196,11 @@ let saveInProgress = false;
 let saveQueue = [];
 
 async function saveToFirebase() {
+    console.log('⚠️ Firebase тимчасово відключено (квота перевищена)');
+    console.log('📦 Дані збережено в localStorage');
+    return;
+    
+    /* УВІМКНУТИ ЗАВТРА:
     // Додати в чергу
     const currentData = {
         score, clickValue, autoClickValue, level,
@@ -200,15 +210,12 @@ async function saveToFirebase() {
     
     saveQueue.push(currentData);
     
-    // Якщо вже йде збереження - почекати
     if (saveInProgress) {
         console.log('⏳ Збереження в черзі...');
         return;
     }
     
     saveInProgress = true;
-    
-    // Взяти останні дані з черги
     const dataToSave = saveQueue[saveQueue.length - 1];
     saveQueue = [];
     
@@ -226,15 +233,11 @@ async function saveToFirebase() {
         });
         
         console.log('✅ Збережено в Firebase:', dataToSave.score, 'очок');
-        
-        // Оновити кеш
         saveToLocal();
         
     } catch (e) {
         console.error('❌ Помилка збереження Firebase:', e);
-        // Повернути дані в чергу
         saveQueue.unshift(dataToSave);
-        // Спробувати ще раз через 2 секунди
         setTimeout(() => {
             saveInProgress = false;
             saveToFirebase();
@@ -243,11 +246,10 @@ async function saveToFirebase() {
     }
     
     saveInProgress = false;
-    
-    // Якщо є ще дані в черзі - зберегти їх
     if (saveQueue.length > 0) {
         setTimeout(() => saveToFirebase(), 100);
     }
+    */
 }
 
 function scheduleSave() {
