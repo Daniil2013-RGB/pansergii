@@ -31,6 +31,13 @@ if (tg) {
         document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
         document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
     }
+    
+    // Обробник закриття додатку
+    tg.onEvent('viewportChanged', () => {
+        console.log('Viewport changed, saving...');
+        saveToLocal();
+        saveToFirebase();
+    });
 }
 
 const userId = telegramUser?.id?.toString() || 'dev_' + (localStorage.getItem('devUserId') || (() => {
@@ -186,31 +193,34 @@ function saveToLocal() {
 }
 
 let saveInProgress = false;
+let saveQueue = [];
 
 async function saveToFirebase() {
-    // Якщо вже йде збереження - пропустити
+    // Додати в чергу
+    const currentData = {
+        score, clickValue, autoClickValue, level,
+        purchasedUpgrades, purchasedAccessories, currentAccessoryId,
+        totalClicks, totalEarned, secretCardsFound, fragments, currentTheme
+    };
+    
+    saveQueue.push(currentData);
+    
+    // Якщо вже йде збереження - почекати
     if (saveInProgress) {
-        console.log('⏳ Збереження вже в процесі, пропускаємо...');
+        console.log('⏳ Збереження в черзі...');
         return;
     }
     
     saveInProgress = true;
     
+    // Взяти останні дані з черги
+    const dataToSave = saveQueue[saveQueue.length - 1];
+    saveQueue = [];
+    
     try {
         const ref = doc(db, 'players', userId);
-        const dataToSave = {
-            score,
-            clickValue,
-            autoClickValue,
-            level,
-            purchasedUpgrades,
-            purchasedAccessories,
-            currentAccessoryId,
-            totalClicks,
-            totalEarned,
-            secretCardsFound,
-            fragments,
-            currentTheme,
+        await setDoc(ref, {
+            ...dataToSave,
             updatedAt: new Date().toISOString(),
             telegramUser: telegramUser ? {
                 id: telegramUser.id,
@@ -218,24 +228,30 @@ async function saveToFirebase() {
                 firstName: telegramUser.first_name || '',
                 photoUrl: telegramUser.photo_url || ''
             } : null
-        };
+        });
         
-        await setDoc(ref, dataToSave);
-        console.log('✅ Збережено в Firebase:', score, 'очок');
+        console.log('✅ Збережено в Firebase:', dataToSave.score, 'очок');
         
         // Оновити кеш
         saveToLocal();
         
     } catch (e) {
         console.error('❌ Помилка збереження Firebase:', e);
-        // Спробувати ще раз через 3 секунди
+        // Повернути дані в чергу
+        saveQueue.unshift(dataToSave);
+        // Спробувати ще раз через 2 секунди
         setTimeout(() => {
             saveInProgress = false;
             saveToFirebase();
-        }, 3000);
+        }, 2000);
         return;
-    } finally {
-        saveInProgress = false;
+    }
+    
+    saveInProgress = false;
+    
+    // Якщо є ще дані в черзі - зберегти їх
+    if (saveQueue.length > 0) {
+        setTimeout(() => saveToFirebase(), 100);
     }
 }
 
@@ -243,11 +259,8 @@ function scheduleSave() {
     // Миттєво зберегти в localStorage
     saveToLocal();
     
-    // Відкладене збереження в Firebase (debounce 500мс)
-    clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => {
-        saveToFirebase();
-    }, 500);
+    // МИТТЄВО зберегти в Firebase без debounce
+    saveToFirebase();
 }
 
 function showSaveStatus() {
@@ -756,35 +769,17 @@ async function init() {
         setTimeout(spawnSecretCard, 10000);
     }
     
-    // Збереження при закритті/виході (синхронне)
-    window.addEventListener('beforeunload', (e) => {
-        // Синхронне збереження
+    // Збереження при закритті/виході
+    window.addEventListener('beforeunload', async (e) => {
+        console.log('🚪 Закриття додатку, зберігаємо...');
         saveToLocal();
-        
-        // Спробувати зберегти в Firebase синхронно через sendBeacon
-        try {
-            const ref = doc(db, 'players', userId);
-            const dataToSave = JSON.stringify({
-                score, clickValue, autoClickValue, level,
-                purchasedUpgrades, purchasedAccessories, currentAccessoryId,
-                totalClicks, totalEarned, secretCardsFound, fragments, currentTheme,
-                updatedAt: new Date().toISOString()
-            });
-            
-            // Використати Fetch API з keepalive
-            fetch(`https://firestore.googleapis.com/v1/projects/pansergiitap/databases/(default)/documents/players/${userId}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: dataToSave,
-                keepalive: true
-            }).catch(err => console.error('Помилка збереження при виході:', err));
-            
-        } catch (err) {
-            console.error('Помилка:', err);
-        }
-        
-        // Форсувати збереження
-        saveToFirebase();
+        await saveToFirebase();
+    });
+    
+    window.addEventListener('pagehide', async (e) => {
+        console.log('🚪 Page hide, зберігаємо...');
+        saveToLocal();
+        await saveToFirebase();
     });
     
     // Збереження при паузі (Telegram)
@@ -800,11 +795,11 @@ async function init() {
         }
     });
     
-    // Періодичне збереження кожні 5 секунд
+    // Дуже часте автозбереження - кожні 2 секунди
     setInterval(async () => {
         console.log('⏰ Автозбереження...');
         await saveToFirebase();
-    }, 5000);
+    }, 2000);
 }
 
 init();
