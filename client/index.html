@@ -61,6 +61,24 @@
     <div id="tab-news" class="tab-content">
         <h2 class="section-title">📰 Новини</h2>
         <div class="news-list">
+            <div class="news-card" style="background: rgba(255, 152, 0, 0.1); border: 2px solid #FF9800;">
+                <div class="news-date">28 Квітня 2026 - ВАЖЛИВО</div>
+                <h3 class="news-title">⚠️ Технічні роботи до завтра</h3>
+                <p class="news-content">
+                    <strong>Перевищено безкоштовну квоту Firebase!</strong><br><br>
+                    
+                    До завтра (29 квітня, 00:00 UTC) тимчасово не працюють:<br>
+                    • 🔥 Хмарне збереження (Firebase)<br>
+                    • 🏆 Лідерборд<br>
+                    • 🔄 Синхронізація між пристроями<br><br>
+                    
+                    <strong>Ваш прогрес НЕ втрачається!</strong><br>
+                    Все зберігається локально на вашому пристрої.<br><br>
+                    
+                    Завтра о 3:00 за Києвом квота оновиться і все запрацює знову! 🚀
+                </p>
+                <span class="news-badge" style="background: #FF9800;">ТЕХНІЧНІ РОБОТИ</span>
+            </div>
             <div class="news-card compensation-card">
                 <div class="news-date">28 Квітня 2026</div>
                 <h3 class="news-title">🎁 Компенсація за баги</h3>
@@ -121,8 +139,14 @@
     <div id="tab-leaderboard" class="tab-content">
         <h2 class="section-title">🏆 Лідерборд</h2>
         
-        <!-- Подіум для топ-3 -->
-        <div class="podium-container" id="podium-container">
+        <!-- Попередження про технічні роботи -->
+        <div class="warning-box">
+            ⚠️ Лідерборд тимчасово недоступний через технічні роботи.<br>
+            Запрацює завтра о 3:00 за Києвом!
+        </div>
+        
+        <!-- Подіум для топ-3 (приховано) -->
+        <div class="podium-container" id="podium-container" style="display: none;">
             <div class="podium-place podium-second">
                 <div class="podium-avatar">
                     <img class="podium-avatar-img" style="display: none;" />
