@@ -259,8 +259,11 @@ function scheduleSave() {
     // Миттєво зберегти в localStorage
     saveToLocal();
     
-    // МИТТЄВО зберегти в Firebase без debounce
-    saveToFirebase();
+    // Відкладене збереження в Firebase (debounce 3 секунди)
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveToFirebase();
+    }, 3000);
 }
 
 function showSaveStatus() {
@@ -795,11 +798,11 @@ async function init() {
         }
     });
     
-    // Дуже часте автозбереження - кожні 2 секунди
+    // Помірне автозбереження - кожні 30 секунд
     setInterval(async () => {
         console.log('⏰ Автозбереження...');
         await saveToFirebase();
-    }, 2000);
+    }, 30000);
 }
 
 init();
