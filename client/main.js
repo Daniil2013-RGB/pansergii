@@ -166,10 +166,19 @@ function saveToLocal() {
 async function saveToFirebase() {
     try {
         const ref = doc(db, 'players', userId);
-        await setDoc(ref, {
-            score, clickValue, autoClickValue, level,
-            purchasedUpgrades, purchasedAccessories, currentAccessoryId,
-            totalClicks, totalEarned, secretCardsFound, fragments, currentTheme,
+        const dataToSave = {
+            score,
+            clickValue,
+            autoClickValue,
+            level,
+            purchasedUpgrades,
+            purchasedAccessories,
+            currentAccessoryId,
+            totalClicks,
+            totalEarned,
+            secretCardsFound,
+            fragments,
+            currentTheme,
             updatedAt: new Date().toISOString(),
             telegramUser: telegramUser ? {
                 id: telegramUser.id,
@@ -177,16 +186,22 @@ async function saveToFirebase() {
                 firstName: telegramUser.first_name || '',
                 photoUrl: telegramUser.photo_url || ''
             } : null
-        });
-        // Видалено showSaveStatus() - більше не показуємо надпис
+        };
+        
+        await setDoc(ref, dataToSave, { merge: true }); // merge: true щоб не перезаписувати все
+        console.log('✅ Збережено в Firebase:', score);
     } catch (e) {
-        console.warn('Помилка збереження Firebase:', e);
+        console.error('❌ Помилка збереження Firebase:', e);
+        // Спробувати ще раз через 2 секунди
+        setTimeout(() => saveToFirebase(), 2000);
     }
 }
 
 function scheduleSave() {
     saveToLocal();
-    saveToFirebase(); // Миттєве збереження
+    // Відкладене збереження в Firebase (debounce 1 сек)
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(saveToFirebase, 1000);
 }
 
 function showSaveStatus() {
@@ -316,6 +331,42 @@ window.resetProgress = function() {
     if (confirm('Ви впевнені? Це видалить весь прогрес!')) {
         localStorage.removeItem('serhiyGameSave');
         location.reload();
+    }
+};
+
+// Компенсація за баги
+window.claimCompensation = async function() {
+    try {
+        // Перевірити чи вже отримував
+        const compensationClaimed = localStorage.getItem('compensationClaimed');
+        if (compensationClaimed === 'true') {
+            alert('❌ Ви вже отримали компенсацію!');
+            return;
+        }
+        
+        // Видати компенсацію
+        score += 5000000;
+        totalEarned += 5000000;
+        
+        // Позначити що отримано
+        localStorage.setItem('compensationClaimed', 'true');
+        
+        // Зберегти
+        await saveToFirebase();
+        updateUI();
+        
+        // Змінити кнопку
+        const btn = document.getElementById('claim-compensation');
+        if (btn) {
+            btn.textContent = '✅ Отримано!';
+            btn.disabled = true;
+            btn.style.background = '#4CAF50';
+        }
+        
+        alert('🎉 Ви отримали 5,000,000 очок як компенсацію!\nДякуємо за терпіння!');
+    } catch (e) {
+        console.error('Помилка отримання компенсації:', e);
+        alert('❌ Помилка. Спробуйте ще раз.');
     }
 };
 
@@ -638,6 +689,16 @@ async function init() {
         mainCharacter.appendChild(el);
     }
     
+    // Перевірити компенсацію
+    const compensationClaimed = localStorage.getItem('compensationClaimed');
+    const compensationBtn = document.getElementById('claim-compensation');
+    if (compensationClaimed === 'true' && compensationBtn) {
+        compensationBtn.textContent = '✅ Отримано!';
+        compensationBtn.disabled = true;
+        compensationBtn.style.background = '#4CAF50';
+        compensationBtn.style.cursor = 'not-allowed';
+    }
+    
     updateUI();
     
     // Ховаємо екран завантаження
@@ -648,6 +709,26 @@ async function init() {
     if (secretCardsFound < 5) {
         setTimeout(spawnSecretCard, 10000);
     }
+    
+    // Збереження при закритті/виході
+    window.addEventListener('beforeunload', () => {
+        saveToLocal();
+        saveToFirebase();
+    });
+    
+    // Збереження при паузі (Telegram)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            saveToLocal();
+            saveToFirebase();
+        }
+    });
+    
+    // Періодичне збереження кожні 10 секунд
+    setInterval(() => {
+        saveToLocal();
+        saveToFirebase();
+    }, 10000);
 }
 
 init();
