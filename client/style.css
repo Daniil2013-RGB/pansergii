@@ -1010,3 +1010,110 @@ body.tg-theme {
     25%       { transform: translateX(-6px); }
     75%       { transform: translateX(6px); }
 }
+
+/* ─── Технічні роботи ─────────────────────────────────────────────────────── */
+#maintenance-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-primary);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.maintenance-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+    min-height: 100vh;
+}
+
+.maintenance-icon {
+    font-size: 5em;
+    margin-bottom: 24px;
+    animation: spin 4s linear infinite;
+}
+
+.maintenance-title {
+    font-size: 2.2em;
+    font-weight: 800;
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+}
+
+.maintenance-text {
+    color: var(--text-secondary);
+    font-size: 1.1em;
+    line-height: 1.7;
+    margin-bottom: 24px;
+    max-width: 320px;
+}
+
+.maintenance-timer {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 32px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.maintenance-news-btn {
+    background: var(--gradient-gold);
+    color: #000;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 16px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+}
+
+.maintenance-news-btn:active {
+    transform: scale(0.96);
+}
+
+/* Новини в режимі тех. робіт */
+.maintenance-news-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 16px;
+    background: var(--bg-card);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.maintenance-news-header h2 {
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+.maintenance-back-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+}
+
+.maintenance-news-list {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

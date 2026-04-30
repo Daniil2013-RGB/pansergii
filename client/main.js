@@ -30,6 +30,82 @@ const userId = telegramUser?.id?.toString() || 'dev_' + (localStorage.getItem('d
     return id;
 })());
 
+// ─── Доступ ────────────────────────────────────────────────────────────────────
+const ALLOWED_USERS = ['dankaklytoii', 'Poderskaserjiitap'];
+const isAllowed = ALLOWED_USERS.includes(telegramUser?.username);
+
+function showMaintenance() {
+    document.getElementById('loading-screen').style.display = 'none';
+    
+    const maintenance = document.createElement('div');
+    maintenance.id = 'maintenance-screen';
+    maintenance.innerHTML = `
+        <div class="maintenance-container">
+            <div class="maintenance-icon">🔧</div>
+            <h1 class="maintenance-title">Технічні роботи</h1>
+            <p class="maintenance-text">
+                Ми активно працюємо над покращенням гри!<br>
+                Незабаром все запрацює знову 🚀
+            </p>
+            <div class="maintenance-timer">Очікуйте оновлення...</div>
+            <button class="maintenance-news-btn" onclick="showMaintenanceNews()">
+                📰 Новини
+            </button>
+        </div>
+
+        <!-- Новини (приховані) -->
+        <div id="maintenance-news" style="display:none">
+            <div class="maintenance-news-header">
+                <button class="maintenance-back-btn" onclick="hideMaintenanceNews()">← Назад</button>
+                <h2>📰 Новини</h2>
+            </div>
+            <div class="maintenance-news-list">
+                <div class="news-card">
+                    <div class="news-date">29 Квітня 2026</div>
+                    <h3 class="news-title">🔧 Технічні роботи</h3>
+                    <p class="news-content">
+                        Зараз ми активно виправляємо баги та додаємо нові функції:<br><br>
+                        🎰 <strong>Система кейсів</strong> з анімацією рулетки<br>
+                        🎨 <strong>Теми вчителів</strong><br>
+                        💎 <strong>Система досягнень</strong><br>
+                        🔄 <strong>Покращене збереження</strong><br><br>
+                        Дякуємо за терпіння! 🙏
+                    </p>
+                    <span class="news-badge">ТЕХНІЧНІ РОБОТИ</span>
+                </div>
+                <div class="news-card compensation-card">
+                    <div class="news-date">29 Квітня 2026</div>
+                    <h3 class="news-title">🎁 Компенсація за баги</h3>
+                    <p class="news-content">
+                        Вибачте за проблеми зі збереженням! Після відновлення роботи 
+                        отримайте <strong>5,000,000 очок</strong> як компенсацію!
+                    </p>
+                    <span class="news-badge">КОМПЕНСАЦІЯ</span>
+                </div>
+                <div class="news-card">
+                    <div class="news-date">26 Квітня 2026</div>
+                    <h3 class="news-title">🎉 Версія 1.5 — Telegram Mini App!</h3>
+                    <p class="news-content">
+                        Гра перенесена в Telegram! Прогрес зберігається в хмарі Firebase.
+                    </p>
+                    <span class="news-badge">НОВА ВЕРСІЯ</span>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(maintenance);
+}
+
+window.showMaintenanceNews = function() {
+    document.querySelector('.maintenance-container').style.display = 'none';
+    document.getElementById('maintenance-news').style.display = 'block';
+};
+
+window.hideMaintenanceNews = function() {
+    document.querySelector('.maintenance-container').style.display = 'flex';
+    document.getElementById('maintenance-news').style.display = 'none';
+};
+
 // === СТАН ГРИ ===
 let score = 0;
 let clickValue = 1;
@@ -598,6 +674,12 @@ window.manualSave = async () => {
 
 // === ІНІЦІАЛІЗАЦІЯ ===
 async function init() {
+    // Перевірка доступу — тільки для dankaklytoii і Poderskaserjiitap
+    if (!isAllowed) {
+        showMaintenance();
+        return;
+    }
+
     // 1. Завантажити з Firebase (порівняє з localStorage і візьме кращий)
     await loadFromFirebase();
 
