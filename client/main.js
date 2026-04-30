@@ -257,23 +257,21 @@ async function loadFromFirebase() {
 
         if (snap.exists()) {
             const fbData = snap.data();
+
+            // Злиття даних — беремо найкраще з обох джерел
+            const merged = mergeGameData(fbData, localData);
+            applyGameData(merged);
+            saveToLocal();
+
+            // Якщо локальні дані кращі — синхронізувати в Firebase
             const fbScore = fbData.score ?? 0;
             const localScore = localData?.score ?? 0;
-
-            // Беремо дані з більшим прогресом
             if (localScore > fbScore) {
-                console.log('Local is ahead, using local + syncing to Firebase');
-                applyGameData(localData);
-                await syncToFirebase(); // Завантажити локальне в Firebase
-            } else {
-                console.log('Firebase is ahead, using Firebase');
-                applyGameData(fbData);
-                saveToLocal();
+                console.log('Local ahead, syncing merged data to Firebase');
+                await syncToFirebase();
             }
         } else {
-            // Немає в Firebase — завантажити з localStorage і синхронізувати
             if (localData) {
-                console.log('No Firebase data, uploading local data');
                 applyGameData(localData);
             }
             await syncToFirebase();
@@ -282,6 +280,59 @@ async function loadFromFirebase() {
         console.error('Firebase load error:', e);
         loadFromLocal();
     }
+}
+
+// Злиття даних — завжди беремо максимум
+function mergeGameData(fbData, localData) {
+    if (!localData) return fbData;
+    if (!fbData) return localData;
+
+    // Злиття осколків — беремо максимум кожного типу
+    const mergedFragments = {};
+    const allFragmentKeys = ['standard', 'rare', 'smart', 'diamond', 'competitive', 'strange'];
+    allFragmentKeys.forEach(key => {
+        mergedFragments[key] = Math.max(
+            fbData.fragments?.[key] ?? 0,
+            localData.fragments?.[key] ?? 0
+        );
+    });
+
+    // Злиття тем — об'єднуємо обидва масиви
+    const fbThemes = fbData.unlockedThemes ?? ['default'];
+    const localThemes = localData.unlockedThemes ?? ['default'];
+    const mergedThemes = [...new Set([...fbThemes, ...localThemes])];
+
+    // Активна тема — беремо локальну якщо є (свіжіша)
+    const mergedActiveTheme = localData.activeTheme ?? fbData.activeTheme ?? 'default';
+
+    return {
+        // Беремо більший score
+        score:               Math.max(fbData.score ?? 0, localData.score ?? 0),
+        clickValue:          Math.max(fbData.clickValue ?? 1, localData.clickValue ?? 1),
+        autoClickValue:      Math.max(fbData.autoClickValue ?? 0, localData.autoClickValue ?? 0),
+        level:               Math.max(fbData.level ?? 1, localData.level ?? 1),
+        totalClicks:         Math.max(fbData.totalClicks ?? 0, localData.totalClicks ?? 0),
+        totalEarned:         Math.max(fbData.totalEarned ?? 0, localData.totalEarned ?? 0),
+        secretCardsFound:    Math.max(fbData.secretCardsFound ?? 0, localData.secretCardsFound ?? 0),
+        energy:              Math.max(fbData.energy ?? 0, localData.energy ?? 0),
+        lastEnergyUpdate:    Math.max(fbData.lastEnergyUpdate ?? 0, localData.lastEnergyUpdate ?? 0),
+
+        // Злиття об'єктів — об'єднуємо куплені апгрейди та аксесуари
+        purchasedUpgrades:   { ...fbData.purchasedUpgrades, ...localData.purchasedUpgrades },
+        purchasedAccessories:{ ...fbData.purchasedAccessories, ...localData.purchasedAccessories },
+
+        // Беремо локальний аксесуар (свіжіший)
+        currentAccessoryId:  localData.currentAccessoryId ?? fbData.currentAccessoryId ?? null,
+
+        // Злиття осколків та тем
+        fragments:           mergedFragments,
+        unlockedThemes:      mergedThemes,
+        activeTheme:         mergedActiveTheme,
+        currentTheme:        mergedActiveTheme,
+
+        // Telegram дані
+        telegramUser:        fbData.telegramUser ?? localData.telegramUser ?? null,
+    };
 }
 
 // === ОФЛАЙН АВТОФАРМ (макс 2 години) ===
