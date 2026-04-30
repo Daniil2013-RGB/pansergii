@@ -43,6 +43,18 @@
         <div class="tap-zone" id="main-character">
             <img src="https://imgpx.com/is29RsUfHLAk.jpg" alt="Пан Сергій" class="main-character-img">
         </div>
+
+        <!-- Енергія -->
+        <div class="energy-container">
+            <div class="energy-header">
+                <span class="energy-label">⚡ Енергія</span>
+                <span class="energy-text" id="energy-text">100 / 100</span>
+            </div>
+            <div class="energy-bar">
+                <div class="energy-bar-fill" id="energy-bar-fill"></div>
+            </div>
+            <div class="energy-hint">Відновлюється повністю за 3 години • Авто-фарм працює до 2 год офлайн</div>
+        </div>
     </div>
 
     <!-- Вкладка: Магазин -->
@@ -80,7 +92,7 @@
                 <span class="news-badge" style="background: #FF9800;">ТЕХНІЧНІ РОБОТИ</span>
             </div>
             <div class="news-card compensation-card">
-                <div class="news-date">28 Квітня 2026</div>
+                <div class="news-date">29 Квітня 2026</div>
                 <h3 class="news-title">🎁 Компенсація за баги</h3>
                 <p class="news-content">
                     Вибачте за проблеми зі збереженням прогресу! Ми виправили всі баги та даруємо вам 
@@ -92,18 +104,17 @@
                 <span class="news-badge">КОМПЕНСАЦІЯ</span>
             </div>
             <div class="news-card">
-                <div class="news-date">28 Квітня 2026</div>
-                <h3 class="news-title">🐛 Критичний багофікс 1.7</h3>
+                <div class="news-date">29 Квітня 2026</div>
+                <h3 class="news-title">✅ Технічні роботи завершено!</h3>
                 <p class="news-content">
-                    Виправлено критичну проблему зі збереженням прогресу! Тепер гра зберігається:
-                    • При кожній дії (з debounce 1 сек)
-                    • При закритті додатку
-                    • Кожні 10 секунд автоматично
-                    • При згортанні Telegram
-                    
-                    Також виправлено білий фон на деяких пристроях.
+                    Технічні роботи завершено! Ось що нового у версії 1.9:<br><br>
+                    ⚡ <strong>Система енергії</strong> — 100 тапів кожні 3 години<br>
+                    🌙 <strong>Офлайн автофарм</strong> — до 2 годин поки вас немає<br>
+                    💾 <strong>Надійне збереження</strong> — Firebase + localStorage синхронізуються при вході<br>
+                    🔄 <strong>Розумна синхронізація</strong> — береться кращий результат з хмари або локального<br>
+                    📊 <strong>Авто-синхронізація</strong> — раз на 5 хвилин і при виході
                 </p>
-                <span class="news-badge">ВАЖЛИВО</span>
+                <span class="news-badge">НОВА ВЕРСІЯ 1.9</span>
             </div>
             <div class="news-card">
                 <div class="news-date">27 Квітня 2026</div>
@@ -293,15 +304,11 @@
         </div>
         
         <!-- Кнопка ручного збереження -->
-        <div class="warning-box">
-            ⚠️ Firebase тимчасово відключено через перевищення квоти.<br>
-            Прогрес зберігається локально. Завтра увімкнемо хмарне збереження!
-        </div>
-        <button class="manual-save-btn" onclick="manualSave()" disabled>
-            💾 Зберегти прогрес (Firebase відключено)
+        <button class="manual-save-btn" onclick="manualSave()">
+            💾 Зберегти прогрес зараз
         </button>
         <div class="save-info">
-            Зараз працює тільки локальне збереження
+            Автозбереження: кожні 5 хвилин + при виході
         </div>
         
         <div class="profile-stats">
