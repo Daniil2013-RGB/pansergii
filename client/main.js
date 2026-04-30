@@ -288,12 +288,37 @@ function mergeGameData(fbData, localData) {
     if (!fbData) return localData;
 
     // Визначаємо який запис свіжіший за timestamp
-    const fbTime = fbData.lastSaved ?? 0;
+    const fbTime = fbData.lastSaved ?? fbData.updatedAt ? new Date(fbData.updatedAt).getTime() : 0;
     const localTime = localData.lastSaved ?? 0;
-    const newerData = localTime >= fbTime ? localData : fbData;
-    const olderData = localTime >= fbTime ? fbData : localData;
 
-    console.log('Newer:', localTime >= fbTime ? 'local' : 'firebase', 'score:', newerData.score);
+    // ВАЖЛИВО: якщо Firebase має більший score — завжди беремо Firebase
+    // навіть якщо local новіший (захист від обнулення)
+    const fbScore = fbData.score ?? 0;
+    const localScore = localData.score ?? 0;
+
+    let newerData, olderData;
+
+    if (fbScore === 0 && localScore === 0) {
+        // Обидва нулі — беремо Firebase
+        newerData = fbData;
+        olderData = localData;
+    } else if (localScore === 0 && fbScore > 0) {
+        // Local порожній — завжди беремо Firebase
+        newerData = fbData;
+        olderData = localData;
+        console.log('Local is empty, using Firebase score:', fbScore);
+    } else if (fbScore === 0 && localScore > 0) {
+        // Firebase порожній — беремо local
+        newerData = localData;
+        olderData = fbData;
+        console.log('Firebase is empty, using local score:', localScore);
+    } else {
+        // Обидва мають дані — беремо за timestamp
+        newerData = localTime >= fbTime ? localData : fbData;
+        olderData = localTime >= fbTime ? fbData : localData;
+        console.log('Both have data. Newer:', localTime >= fbTime ? 'local' : 'firebase',
+            '| local score:', localScore, '| fb score:', fbScore);
+    }
 
     // Злиття осколків — беремо максимум кожного типу
     const mergedFragments = {};
@@ -306,35 +331,29 @@ function mergeGameData(fbData, localData) {
     });
 
     // Злиття тем — об'єднуємо обидва масиви
-    const fbThemes = fbData.unlockedThemes ?? ['default'];
-    const localThemes = localData.unlockedThemes ?? ['default'];
-    const mergedThemes = [...new Set([...fbThemes, ...localThemes])];
+    const mergedThemes = [...new Set([
+        ...(fbData.unlockedThemes ?? ['default']),
+        ...(localData.unlockedThemes ?? ['default'])
+    ])];
 
     return {
-        // Score та витрати — з НАЙНОВІШОГО запису (щоб не повертати витрачені гроші)
         score:               newerData.score               ?? 0,
-        clickValue:          newerData.clickValue          ?? 1,
-        autoClickValue:      newerData.autoClickValue      ?? 0,
-        level:               newerData.level               ?? 1,
-        totalClicks:         newerData.totalClicks         ?? 0,
-        totalEarned:         newerData.totalEarned         ?? 0,
+        clickValue:          Math.max(fbData.clickValue ?? 1, localData.clickValue ?? 1),
+        autoClickValue:      Math.max(fbData.autoClickValue ?? 0, localData.autoClickValue ?? 0),
+        level:               Math.max(fbData.level ?? 1, localData.level ?? 1),
+        totalClicks:         Math.max(fbData.totalClicks ?? 0, localData.totalClicks ?? 0),
+        totalEarned:         Math.max(fbData.totalEarned ?? 0, localData.totalEarned ?? 0),
         energy:              newerData.energy              ?? MAX_ENERGY,
         lastEnergyUpdate:    newerData.lastEnergyUpdate    ?? Date.now(),
         currentAccessoryId:  newerData.currentAccessoryId ?? null,
         activeTheme:         newerData.activeTheme         ?? 'default',
         currentTheme:        newerData.activeTheme         ?? 'default',
-
-        // Апгрейди та аксесуари — об'єднуємо (щоб не втратити куплені)
         purchasedUpgrades:    { ...olderData.purchasedUpgrades,    ...newerData.purchasedUpgrades    },
         purchasedAccessories: { ...olderData.purchasedAccessories, ...newerData.purchasedAccessories },
-
-        // Осколки та теми — завжди максимум (щоб не втратити зароблені)
-        fragments:       mergedFragments,
-        unlockedThemes:  mergedThemes,
-        secretCardsFound: Math.max(fbData.secretCardsFound ?? 0, localData.secretCardsFound ?? 0),
-
-        // Telegram дані
-        telegramUser: fbData.telegramUser ?? localData.telegramUser ?? null,
+        fragments:            mergedFragments,
+        unlockedThemes:       mergedThemes,
+        secretCardsFound:     Math.max(fbData.secretCardsFound ?? 0, localData.secretCardsFound ?? 0),
+        telegramUser:         fbData.telegramUser ?? localData.telegramUser ?? null,
     };
 }
 
