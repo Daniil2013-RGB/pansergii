@@ -2033,3 +2033,32 @@ input:checked + .toggle-slider:before { transform: translateX(24px); background:
 }
 
 .founder-fragment-btn:active { transform: scale(0.97); }
+
+/* ─── Анімовані частинки тем ─────────────────────────────────────────────── */
+@keyframes particleRise {
+    0%   { opacity: 0;   transform: translateY(0)    rotate(0deg)   scale(0.5); }
+    10%  { opacity: 0.8; }
+    80%  { opacity: 0.6; }
+    100% { opacity: 0;   transform: translateY(-100vh) rotate(360deg) scale(1.2); }
+}
+
+/* Математична тема — формули */
+body[data-theme="math"] #theme-particles div {
+    font-family: 'Times New Roman', serif;
+    font-weight: bold;
+}
+
+/* Секретна тема — глітч частинки */
+body.glitch-theme #theme-particles div {
+    animation-timing-function: steps(3);
+}
+
+/* Щоб частинки не перекривали UI */
+#theme-particles {
+    z-index: 0 !important;
+}
+
+#app {
+    position: relative;
+    z-index: 1;
+}

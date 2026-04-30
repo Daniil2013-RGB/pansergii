@@ -121,7 +121,7 @@ let fragments = { standard:0, rare:0, smart:0, diamond:0, competitive:0, strange
 let currentTheme = 'default';
 
 // === ЕНЕРГІЯ ===
-const MAX_ENERGY = 100;
+const MAX_ENERGY = 300;
 const ENERGY_REGEN_PER_SEC = MAX_ENERGY / (3 * 3600); // 100 за 3 години
 let energy = MAX_ENERGY;
 let lastEnergyUpdate = Date.now();
@@ -912,13 +912,24 @@ function applyTheme(themeId) {
         document.documentElement.style.setProperty(key, val);
     });
 
+    // data-theme для CSS селекторів
+    document.body.dataset.theme = themeId;
+
+    // Видалити старі частинки
+    const oldParticles = document.getElementById('theme-particles');
+    if (oldParticles) oldParticles.remove();
+
+    // Додати нові частинки
+    if (themeId !== 'default') {
+        spawnThemeParticles(themeId);
+    }
+
     // Якщо секретна тема — показати секретний розділ
     const secretNav = document.getElementById('secret-nav');
     if (secretNav) {
         secretNav.style.display = themeId === 'glitch' ? 'flex' : 'none';
     }
 
-    // Глітч ефект для секретної теми
     if (themeId === 'glitch') {
         document.body.classList.add('glitch-theme');
     } else {
@@ -926,6 +937,68 @@ function applyTheme(themeId) {
     }
 
     saveToLocal();
+}
+
+function spawnThemeParticles(themeId) {
+    const container = document.createElement('div');
+    container.id = 'theme-particles';
+    container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;';
+    document.body.appendChild(container);
+
+    const configs = {
+        math:        { symbols: ['∑','∫','π','√','∞','±','÷','×','α','β','Δ','θ'], color: '#00BCD4', count: 15 },
+        nature:      { symbols: ['🌿','🍃','🌸','🌺','🍀','🌱','🌻','🦋','🐝','🌾'], color: '#4CAF50', count: 12 },
+        space:       { symbols: ['⭐','🌟','✨','💫','🌙','☄️','🪐','🔭','🌌','👾'], color: '#7C4DFF', count: 15 },
+        rich:        { symbols: ['💰','💵','💎','🤑','💸','🏆','👑','💳','🪙','💴'], color: '#FFD700', count: 12 },
+        ai:          { symbols: ['🤖','⚡','💡','🔮','🧠','📡','🖥️','⚙️','🔬','🛸'], color: '#00E5FF', count: 12 },
+        fire:        { symbols: ['🔥','💥','✨','🌋','⚡','🌡️','🔴','🟠','🟡','💫'], color: '#FF6D00', count: 15 },
+        glitch:      { symbols: ['👾','💀','⚠️','❌','🔴','⛔','💣','🕷️','☠️','🩸'], color: '#FF0000', count: 20 }
+    };
+
+    const cfg = configs[themeId];
+    if (!cfg) return;
+
+    for (let i = 0; i < cfg.count; i++) {
+        setTimeout(() => {
+            createParticle(container, cfg);
+        }, i * 300);
+    }
+
+    // Постійно додавати нові
+    const interval = setInterval(() => {
+        if (!document.getElementById('theme-particles')) {
+            clearInterval(interval);
+            return;
+        }
+        createParticle(container, cfg);
+    }, 1500);
+
+    container.dataset.interval = interval;
+}
+
+function createParticle(container, cfg) {
+    const el = document.createElement('div');
+    const symbol = cfg.symbols[Math.floor(Math.random() * cfg.symbols.length)];
+    const size = 16 + Math.random() * 20;
+    const x = Math.random() * 100;
+    const duration = 6 + Math.random() * 8;
+    const delay = Math.random() * 2;
+
+    el.textContent = symbol;
+    el.style.cssText = `
+        position: absolute;
+        left: ${x}%;
+        bottom: -50px;
+        font-size: ${size}px;
+        opacity: 0;
+        animation: particleRise ${duration}s ${delay}s ease-in forwards;
+        pointer-events: none;
+        user-select: none;
+        filter: drop-shadow(0 0 6px ${cfg.color});
+    `;
+
+    container.appendChild(el);
+    setTimeout(() => el.remove(), (duration + delay) * 1000 + 500);
 }
 
 function renderLabRecipes() {
