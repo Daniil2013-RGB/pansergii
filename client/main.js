@@ -282,10 +282,18 @@ async function loadFromFirebase() {
     }
 }
 
-// Злиття даних — завжди беремо максимум
+// Злиття даних — score береться з найновішого запису, решта — максимум
 function mergeGameData(fbData, localData) {
     if (!localData) return fbData;
     if (!fbData) return localData;
+
+    // Визначаємо який запис свіжіший за timestamp
+    const fbTime = fbData.lastSaved ?? 0;
+    const localTime = localData.lastSaved ?? 0;
+    const newerData = localTime >= fbTime ? localData : fbData;
+    const olderData = localTime >= fbTime ? fbData : localData;
+
+    console.log('Newer:', localTime >= fbTime ? 'local' : 'firebase', 'score:', newerData.score);
 
     // Злиття осколків — беремо максимум кожного типу
     const mergedFragments = {};
@@ -302,36 +310,31 @@ function mergeGameData(fbData, localData) {
     const localThemes = localData.unlockedThemes ?? ['default'];
     const mergedThemes = [...new Set([...fbThemes, ...localThemes])];
 
-    // Активна тема — беремо локальну якщо є (свіжіша)
-    const mergedActiveTheme = localData.activeTheme ?? fbData.activeTheme ?? 'default';
-
     return {
-        // Беремо більший score
-        score:               Math.max(fbData.score ?? 0, localData.score ?? 0),
-        clickValue:          Math.max(fbData.clickValue ?? 1, localData.clickValue ?? 1),
-        autoClickValue:      Math.max(fbData.autoClickValue ?? 0, localData.autoClickValue ?? 0),
-        level:               Math.max(fbData.level ?? 1, localData.level ?? 1),
-        totalClicks:         Math.max(fbData.totalClicks ?? 0, localData.totalClicks ?? 0),
-        totalEarned:         Math.max(fbData.totalEarned ?? 0, localData.totalEarned ?? 0),
-        secretCardsFound:    Math.max(fbData.secretCardsFound ?? 0, localData.secretCardsFound ?? 0),
-        energy:              Math.max(fbData.energy ?? 0, localData.energy ?? 0),
-        lastEnergyUpdate:    Math.max(fbData.lastEnergyUpdate ?? 0, localData.lastEnergyUpdate ?? 0),
+        // Score та витрати — з НАЙНОВІШОГО запису (щоб не повертати витрачені гроші)
+        score:               newerData.score               ?? 0,
+        clickValue:          newerData.clickValue          ?? 1,
+        autoClickValue:      newerData.autoClickValue      ?? 0,
+        level:               newerData.level               ?? 1,
+        totalClicks:         newerData.totalClicks         ?? 0,
+        totalEarned:         newerData.totalEarned         ?? 0,
+        energy:              newerData.energy              ?? MAX_ENERGY,
+        lastEnergyUpdate:    newerData.lastEnergyUpdate    ?? Date.now(),
+        currentAccessoryId:  newerData.currentAccessoryId ?? null,
+        activeTheme:         newerData.activeTheme         ?? 'default',
+        currentTheme:        newerData.activeTheme         ?? 'default',
 
-        // Злиття об'єктів — об'єднуємо куплені апгрейди та аксесуари
-        purchasedUpgrades:   { ...fbData.purchasedUpgrades, ...localData.purchasedUpgrades },
-        purchasedAccessories:{ ...fbData.purchasedAccessories, ...localData.purchasedAccessories },
+        // Апгрейди та аксесуари — об'єднуємо (щоб не втратити куплені)
+        purchasedUpgrades:    { ...olderData.purchasedUpgrades,    ...newerData.purchasedUpgrades    },
+        purchasedAccessories: { ...olderData.purchasedAccessories, ...newerData.purchasedAccessories },
 
-        // Беремо локальний аксесуар (свіжіший)
-        currentAccessoryId:  localData.currentAccessoryId ?? fbData.currentAccessoryId ?? null,
-
-        // Злиття осколків та тем
-        fragments:           mergedFragments,
-        unlockedThemes:      mergedThemes,
-        activeTheme:         mergedActiveTheme,
-        currentTheme:        mergedActiveTheme,
+        // Осколки та теми — завжди максимум (щоб не втратити зароблені)
+        fragments:       mergedFragments,
+        unlockedThemes:  mergedThemes,
+        secretCardsFound: Math.max(fbData.secretCardsFound ?? 0, localData.secretCardsFound ?? 0),
 
         // Telegram дані
-        telegramUser:        fbData.telegramUser ?? localData.telegramUser ?? null,
+        telegramUser: fbData.telegramUser ?? localData.telegramUser ?? null,
     };
 }
 
@@ -781,6 +784,7 @@ window.confirmOpenCase = function() {
     score -= c.price;
     updateUI();
     saveToLocal();
+    syncToFirebase(); // Одразу зберегти витрату в Firebase
 
     closeCasePreview();
     startRoulette(currentCaseType);
@@ -1128,6 +1132,8 @@ window.confirmCraft = async function() {
 
     updateUI();
     updateInventory();
+    saveToLocal();
+    syncToFirebase(); // Одразу зберегти витрату в Firebase
 
     // Закрити превью
     document.getElementById('craft-modal').classList.remove('open');
