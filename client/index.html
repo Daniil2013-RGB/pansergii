@@ -73,23 +73,18 @@
     <div id="tab-news" class="tab-content">
         <h2 class="section-title">📰 Новини</h2>
         <div class="news-list">
-            <div class="news-card" style="background: rgba(255, 152, 0, 0.1); border: 2px solid #FF9800;">
-                <div class="news-date">28 Квітня 2026 - ВАЖЛИВО</div>
-                <h3 class="news-title">⚠️ Технічні роботи до завтра</h3>
+            <div class="news-card">
+                <div class="news-date">29 Квітня 2026</div>
+                <h3 class="news-title">✅ Версія 1.9 — Все працює!</h3>
                 <p class="news-content">
-                    <strong>Перевищено безкоштовну квоту Firebase!</strong><br><br>
-                    
-                    До завтра (29 квітня, 00:00 UTC) тимчасово не працюють:<br>
-                    • 🔥 Хмарне збереження (Firebase)<br>
-                    • 🏆 Лідерборд<br>
-                    • 🔄 Синхронізація між пристроями<br><br>
-                    
-                    <strong>Ваш прогрес НЕ втрачається!</strong><br>
-                    Все зберігається локально на вашому пристрої.<br><br>
-                    
-                    Завтра о 3:00 за Києвом квота оновиться і все запрацює знову! 🚀
+                    Технічні роботи завершено! Ось що нового:<br><br>
+                    ⚡ <strong>Система енергії</strong> — 100 тапів кожні 3 години<br>
+                    🌙 <strong>Офлайн автофарм</strong> — до 2 годин поки вас немає<br>
+                    💾 <strong>Надійне збереження</strong> — Firebase + localStorage<br>
+                    🔄 <strong>Розумна синхронізація</strong> — береться кращий результат<br>
+                    🏆 <strong>Лідерборд відновлено!</strong>
                 </p>
-                <span class="news-badge" style="background: #FF9800;">ТЕХНІЧНІ РОБОТИ</span>
+                <span class="news-badge">НОВА ВЕРСІЯ 1.9</span>
             </div>
             <div class="news-card compensation-card">
                 <div class="news-date">29 Квітня 2026</div>
@@ -102,19 +97,6 @@
                     💰 Отримати 5,000,000 очок
                 </button>
                 <span class="news-badge">КОМПЕНСАЦІЯ</span>
-            </div>
-            <div class="news-card">
-                <div class="news-date">29 Квітня 2026</div>
-                <h3 class="news-title">✅ Технічні роботи завершено!</h3>
-                <p class="news-content">
-                    Технічні роботи завершено! Ось що нового у версії 1.9:<br><br>
-                    ⚡ <strong>Система енергії</strong> — 100 тапів кожні 3 години<br>
-                    🌙 <strong>Офлайн автофарм</strong> — до 2 годин поки вас немає<br>
-                    💾 <strong>Надійне збереження</strong> — Firebase + localStorage синхронізуються при вході<br>
-                    🔄 <strong>Розумна синхронізація</strong> — береться кращий результат з хмари або локального<br>
-                    📊 <strong>Авто-синхронізація</strong> — раз на 5 хвилин і при виході
-                </p>
-                <span class="news-badge">НОВА ВЕРСІЯ 1.9</span>
             </div>
             <div class="news-card">
                 <div class="news-date">27 Квітня 2026</div>
@@ -150,14 +132,8 @@
     <div id="tab-leaderboard" class="tab-content">
         <h2 class="section-title">🏆 Лідерборд</h2>
         
-        <!-- Попередження про технічні роботи -->
-        <div class="warning-box">
-            ⚠️ Лідерборд тимчасово недоступний через технічні роботи.<br>
-            Запрацює завтра о 3:00 за Києвом!
-        </div>
-        
-        <!-- Подіум для топ-3 (приховано) -->
-        <div class="podium-container" id="podium-container" style="display: none;">
+        <!-- Подіум для топ-3 -->
+        <div class="podium-container" id="podium-container">
             <div class="podium-place podium-second">
                 <div class="podium-avatar">
                     <img class="podium-avatar-img" style="display: none;" />
@@ -167,7 +143,6 @@
                 <div class="podium-score">0</div>
                 <div class="podium-rank">🥈</div>
             </div>
-            
             <div class="podium-place podium-first">
                 <div class="podium-crown">👑</div>
                 <div class="podium-avatar">
@@ -178,7 +153,6 @@
                 <div class="podium-score">0</div>
                 <div class="podium-rank">🥇</div>
             </div>
-            
             <div class="podium-place podium-third">
                 <div class="podium-avatar">
                     <img class="podium-avatar-img" style="display: none;" />
@@ -190,7 +164,6 @@
             </div>
         </div>
         
-        <!-- Решта гравців -->
         <h3 class="section-subtitle">Інші гравці</h3>
         <div class="leaderboard-list" id="leaderboard-list">
             <div class="leaderboard-item">
