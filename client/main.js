@@ -32,7 +32,7 @@ const userId = telegramUser?.id?.toString() || 'dev_' + (localStorage.getItem('d
 
 // ─── Доступ ────────────────────────────────────────────────────────────────────
 const ALLOWED_USERS = ['dankaklytoii', 'Poderskaserjiitap'];
-const isAllowed = ALLOWED_USERS.includes(telegramUser?.username);
+const isAllowed = true; // Тех. роботи вимкнено
 
 function showMaintenance() {
     document.getElementById('loading-screen').style.display = 'none';
