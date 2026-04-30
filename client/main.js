@@ -174,7 +174,7 @@ function getGameData() {
         score, clickValue, autoClickValue, level,
         purchasedUpgrades, purchasedAccessories, currentAccessoryId,
         totalClicks, totalEarned, secretCardsFound, fragments, currentTheme,
-        energy, lastEnergyUpdate,
+        energy, lastEnergyUpdate, unlockedThemes, activeTheme,
         lastSaved: Date.now()
     };
 }
@@ -194,6 +194,8 @@ function applyGameData(d) {
     currentTheme        = d.currentTheme        ?? 'default';
     energy              = d.energy              ?? MAX_ENERGY;
     lastEnergyUpdate    = d.lastEnergyUpdate    ?? Date.now();
+    unlockedThemes      = d.unlockedThemes      ?? ['default'];
+    activeTheme         = d.activeTheme         ?? 'default';
 }
 
 function saveToLocal() {
@@ -626,19 +628,19 @@ setInterval(() => {
 // === КЕЙСИ ===
 const CASES = {
     basic: {
-        name: 'Базовий кейс', emoji: '📦', price: 100,
+        name: 'Базовий кейс', emoji: '📦', price: 5000000,
         chances: { standard: 60, rare: 30, smart: 20, diamond: 10, competitive: 2, strange: 0 }
     },
     epic: {
-        name: 'Епік кейс', emoji: '🎁', price: 1000,
+        name: 'Епік кейс', emoji: '🎁', price: 10000000,
         chances: { standard: 40, rare: 35, smart: 30, diamond: 20, competitive: 8, strange: 0 }
     },
     legendary: {
-        name: 'Легендарний кейс', emoji: '💎', price: 5000,
+        name: 'Легендарний кейс', emoji: '💎', price: 30000000,
         chances: { standard: 20, rare: 25, smart: 30, diamond: 35, competitive: 20, strange: 0 }
     },
     secret: {
-        name: 'Секретний кейс', emoji: '🌟', price: 1000000,
+        name: 'Секретний кейс', emoji: '🌟', price: 250000000,
         chances: { standard: 0, rare: 0, smart: 25, diamond: 25, competitive: 25, strange: 25 }
     }
 };
@@ -818,7 +820,372 @@ function updateInventory() {
     });
 }
 
-// === ОСНОВАТЕЛЬ ===
+// === ТЕМИ ===
+const THEMES = {
+    default: {
+        name: 'Стандартна', icon: '🎮', rarity: 'default',
+        clickBonus: 0, autoBonus: 0,
+        css: {}
+    },
+    math: {
+        name: 'Математична', icon: '📐', rarity: 'common',
+        clickBonus: 100, autoBonus: 100,
+        css: { '--accent': '#00BCD4', '--gradient': 'linear-gradient(135deg, #006064 0%, #00BCD4 100%)', '--bg-primary': '#0a1628', '--bg-card': '#0d2137' }
+    },
+    nature: {
+        name: 'Природа', icon: '🌿', rarity: 'common',
+        clickBonus: 100, autoBonus: 100,
+        css: { '--accent': '#4CAF50', '--gradient': 'linear-gradient(135deg, #1B5E20 0%, #4CAF50 100%)', '--bg-primary': '#0a1a0a', '--bg-card': '#0d2010' }
+    },
+    space: {
+        name: 'Космос', icon: '🚀', rarity: 'common',
+        clickBonus: 100, autoBonus: 100,
+        css: { '--accent': '#7C4DFF', '--gradient': 'linear-gradient(135deg, #1A0050 0%, #7C4DFF 100%)', '--bg-primary': '#050010', '--bg-card': '#0d0020' }
+    },
+    rich: {
+        name: 'Багата', icon: '💰', rarity: 'rare',
+        clickBonus: 150, autoBonus: 150,
+        css: { '--accent': '#FFD700', '--gradient': 'linear-gradient(135deg, #7B6000 0%, #FFD700 100%)', '--bg-primary': '#1a1400', '--bg-card': '#2a2000' }
+    },
+    ai: {
+        name: 'Штучний інтелект', icon: '🤖', rarity: 'rare',
+        clickBonus: 150, autoBonus: 150,
+        css: { '--accent': '#00E5FF', '--gradient': 'linear-gradient(135deg, #001F3F 0%, #00E5FF 100%)', '--bg-primary': '#000d1a', '--bg-card': '#001428' }
+    },
+    fire: {
+        name: 'Вогонь', icon: '🔥', rarity: 'rare',
+        clickBonus: 150, autoBonus: 150,
+        css: { '--accent': '#FF6D00', '--gradient': 'linear-gradient(135deg, #BF360C 0%, #FF6D00 100%)', '--bg-primary': '#1a0500', '--bg-card': '#2a0800' }
+    },
+    glitch: {
+        name: '!~#*&!$', icon: '👾', rarity: 'secret',
+        clickBonus: 400, autoBonus: 400,
+        css: { '--accent': '#FF0000', '--gradient': 'linear-gradient(135deg, #000000 0%, #FF0000 50%, #000000 100%)', '--bg-primary': '#000000', '--bg-card': '#0a0000' }
+    }
+};
+
+// Рецепти лабораторії
+const LAB_RECIPES = [
+    {
+        id: 'common_theme',
+        name: 'Звичайна тема',
+        icon: '🎨',
+        ingredients: { standard: 5, rare: 3 },
+        cost: 40000000,
+        result: ['math', 'nature', 'space'],
+        rarity: 'common'
+    },
+    {
+        id: 'rare_theme',
+        name: 'Рідкісна тема',
+        icon: '✨',
+        ingredients: { smart: 5, diamond: 3 },
+        cost: 70000000,
+        result: ['rich', 'ai', 'fire'],
+        rarity: 'rare'
+    },
+    {
+        id: 'secret_theme',
+        name: '!~#*&!$',
+        icon: '👾',
+        ingredients: { strange: 5, competitive: 5 },
+        cost: 350000000,
+        result: ['glitch'],
+        rarity: 'secret'
+    }
+];
+
+let unlockedThemes = ['default'];
+let activeTheme = 'default';
+let craftingRecipe = null;
+
+function applyTheme(themeId) {
+    const theme = THEMES[themeId];
+    if (!theme) return;
+
+    activeTheme = themeId;
+
+    // Застосувати CSS змінні
+    Object.entries(theme.css).forEach(([key, val]) => {
+        document.documentElement.style.setProperty(key, val);
+    });
+
+    // Якщо секретна тема — показати секретний розділ
+    const secretNav = document.getElementById('secret-nav');
+    if (secretNav) {
+        secretNav.style.display = themeId === 'glitch' ? 'flex' : 'none';
+    }
+
+    // Глітч ефект для секретної теми
+    if (themeId === 'glitch') {
+        document.body.classList.add('glitch-theme');
+    } else {
+        document.body.classList.remove('glitch-theme');
+    }
+
+    saveToLocal();
+}
+
+function renderLabRecipes() {
+    const container = document.getElementById('lab-recipes-container');
+    if (!container) return;
+
+    container.innerHTML = LAB_RECIPES.map(recipe => {
+        const canCraft = checkCanCraft(recipe);
+        const ingredientsHtml = Object.entries(recipe.ingredients).map(([key, count]) => {
+            const f = FRAGMENTS[key];
+            const have = fragments[key] || 0;
+            const enough = have >= count;
+            return `<span class="recipe-ingredient ${enough ? 'enough' : 'not-enough'}">${f.icon} ×${count}</span>`;
+        }).join('<span class="recipe-plus">+</span>');
+
+        const isSecret = recipe.rarity === 'secret';
+
+        return `
+        <div class="lab-recipe-card ${isSecret ? 'secret-recipe-card' : ''}">
+            <div class="recipe-header">
+                <span class="recipe-big-icon">${recipe.icon}</span>
+                <div>
+                    <div class="recipe-title">${recipe.name}</div>
+                    <div class="recipe-rarity-badge rarity-${recipe.rarity}">${recipe.rarity === 'common' ? 'Звичайна' : recipe.rarity === 'rare' ? 'Рідкісна' : '???'}</div>
+                </div>
+            </div>
+            <div class="recipe-ingredients-row">${ingredientsHtml}</div>
+            <div class="recipe-cost">💰 ${recipe.cost.toLocaleString()} очок</div>
+            <div class="recipe-result-preview">
+                Можливі теми: ${recipe.result.map(id => THEMES[id].icon + ' ' + THEMES[id].name).join(', ')}
+            </div>
+            <button class="recipe-craft-btn ${canCraft ? '' : 'disabled'}" 
+                    onclick="startCraft('${recipe.id}')"
+                    ${canCraft ? '' : 'disabled'}>
+                ${canCraft ? '⚗️ Скрафтити' : 'Недостатньо ресурсів'}
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function checkCanCraft(recipe) {
+    if (score < recipe.cost) return false;
+    return Object.entries(recipe.ingredients).every(([key, count]) => (fragments[key] || 0) >= count);
+}
+
+window.startCraft = function(recipeId) {
+    const recipe = LAB_RECIPES.find(r => r.id === recipeId);
+    if (!recipe || !checkCanCraft(recipe)) return;
+
+    craftingRecipe = recipe;
+
+    // Показати модальне вікно крафту
+    const modal = document.getElementById('craft-modal');
+    const isSecret = recipe.rarity === 'secret';
+
+    document.getElementById('craft-modal-title').textContent = recipe.name;
+    document.getElementById('craft-modal-icon').textContent = recipe.icon;
+    modal.classList.add('open');
+
+    if (isSecret) {
+        modal.classList.add('secret-craft');
+    } else {
+        modal.classList.remove('secret-craft');
+    }
+};
+
+window.confirmCraft = async function() {
+    const recipe = craftingRecipe;
+    if (!recipe) return;
+
+    // Списати ресурси
+    score -= recipe.cost;
+    Object.entries(recipe.ingredients).forEach(([key, count]) => {
+        fragments[key] = (fragments[key] || 0) - count;
+    });
+
+    updateUI();
+    updateInventory();
+
+    // Закрити превью
+    document.getElementById('craft-modal').classList.remove('open');
+
+    // Показати анімацію крафту
+    showCraftAnimation(recipe);
+};
+
+window.closeCraftModal = function() {
+    document.getElementById('craft-modal').classList.remove('open');
+};
+
+function showCraftAnimation(recipe) {
+    const overlay = document.getElementById('craft-animation-overlay');
+    const isSecret = recipe.rarity === 'secret';
+
+    overlay.innerHTML = `
+        <div class="craft-anim-content ${isSecret ? 'secret-anim' : ''}">
+            <div class="craft-anim-particles" id="craft-particles"></div>
+            <div class="craft-anim-icon" id="craft-anim-icon">${recipe.icon}</div>
+            <div class="craft-anim-text">Крафтимо...</div>
+        </div>
+    `;
+    overlay.style.display = 'flex';
+
+    // Генерувати частинки
+    const particles = document.getElementById('craft-particles');
+    for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'craft-particle';
+        p.style.cssText = `
+            left: ${Math.random() * 100}%;
+            top: ${Math.random() * 100}%;
+            animation-delay: ${Math.random() * 2}s;
+            background: ${isSecret ? '#FF0000' : '#FFD700'};
+        `;
+        particles.appendChild(p);
+    }
+
+    // Через 3 секунди показати результат
+    setTimeout(() => {
+        const resultId = recipe.result[Math.floor(Math.random() * recipe.result.length)];
+        const theme = THEMES[resultId];
+
+        if (!unlockedThemes.includes(resultId)) {
+            unlockedThemes.push(resultId);
+        }
+
+        overlay.innerHTML = `
+            <div class="craft-result-content ${isSecret ? 'secret-result' : ''}">
+                <div class="craft-result-icon">${theme.icon}</div>
+                <div class="craft-result-name">${theme.name}</div>
+                <div class="craft-result-rarity rarity-${theme.rarity}">
+                    ${theme.rarity === 'secret' ? '??? СЕКРЕТНА ТЕМА ???' : theme.rarity === 'rare' ? 'Рідкісна тема' : 'Звичайна тема'}
+                </div>
+                <div class="craft-result-bonus">
+                    +${theme.clickBonus} до кліку • +${theme.autoBonus} до автофарму
+                </div>
+                <button class="craft-apply-btn" onclick="applyThemeFromCraft('${resultId}')">
+                    ✨ Застосувати тему
+                </button>
+                <button class="craft-later-btn" onclick="closeCraftAnimation()">
+                    Пізніше
+                </button>
+            </div>
+        `;
+
+        saveToLocal();
+        renderThemeSettings();
+    }, 3000);
+}
+
+window.applyThemeFromCraft = function(themeId) {
+    applyTheme(themeId);
+    closeCraftAnimation();
+    // Перейти в налаштування
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelector('[data-tab="settings"]').classList.add('active');
+    document.getElementById('tab-settings').classList.add('active');
+};
+
+window.closeCraftAnimation = function() {
+    document.getElementById('craft-animation-overlay').style.display = 'none';
+};
+
+function renderThemeSettings() {
+    const container = document.getElementById('themes-container');
+    if (!container) return;
+
+    container.innerHTML = unlockedThemes.map(id => {
+        const theme = THEMES[id];
+        const isActive = activeTheme === id;
+        return `
+        <div class="theme-card ${isActive ? 'active-theme' : ''} rarity-border-${theme.rarity}" 
+             onclick="selectTheme('${id}')">
+            <div class="theme-icon">${theme.icon}</div>
+            <div class="theme-name">${theme.name}</div>
+            <div class="theme-bonuses">+${theme.clickBonus} клік • +${theme.autoBonus} авто</div>
+            ${isActive ? '<div class="theme-active-badge">✓ Активна</div>' : ''}
+        </div>`;
+    }).join('');
+}
+
+window.selectTheme = function(themeId) {
+    if (!unlockedThemes.includes(themeId)) return;
+    applyTheme(themeId);
+    renderThemeSettings();
+};
+
+// Секретний шифр
+window.checkSecretCode = function() {
+    const input = document.getElementById('secret-code-input').value.trim();
+    const resultEl = document.getElementById('secret-code-result');
+    const CIPHER = '31f953825106c4204b88ba535eac91bedafc7ab2231f2efe1badb3f14dbb02da';
+    const ANSWER = 'Вітаю тебе, ти отримав 50 зірок, Дані Кепенку з 6 класу та отримаєш їх';
+
+    if (input === CIPHER) {
+        // Показати шифр і поле для відповіді
+        resultEl.innerHTML = `
+            <div class="cipher-decoded">
+                <div class="cipher-text">${CIPHER}</div>
+                <div class="cipher-hint">🔓 Шифр розпізнано! Введіть відповідь:</div>
+                <input type="text" id="cipher-answer-input" class="secret-code-input" 
+                       placeholder="Введіть відповідь на шифр..." style="margin-top:12px;" />
+                <button class="secret-code-btn" onclick="checkCipherAnswer()" style="margin-top:8px;">
+                    Підтвердити відповідь
+                </button>
+                <div id="cipher-answer-result"></div>
+            </div>
+        `;
+    } else if (input === ANSWER) {
+        // Якщо одразу ввели відповідь
+        handleCorrectAnswer();
+    } else {
+        resultEl.innerHTML = '<span style="color:#F44336">❌ Невірний шифр. Спробуйте ще раз.</span>';
+    }
+};
+
+window.checkCipherAnswer = function() {
+    const input = document.getElementById('cipher-answer-input')?.value.trim();
+    const ANSWER = 'Вітаю тебе, ти отримав 50 зірок, Дані Кепенку з 6 класу та отримаєш їх';
+    const resultEl = document.getElementById('cipher-answer-result');
+
+    if (!input) return;
+
+    if (input === ANSWER) {
+        handleCorrectAnswer();
+    } else {
+        if (resultEl) resultEl.innerHTML = '<span style="color:#F44336">❌ Невірна відповідь.</span>';
+    }
+};
+
+function handleCorrectAnswer() {
+    if (localStorage.getItem('secretCodeClaimed') === 'true') {
+        document.getElementById('secret-code-result').innerHTML =
+            '<span style="color:#FF9800">⚠️ Ви вже отримали нагороду!</span>';
+        return;
+    }
+
+    localStorage.setItem('secretCodeClaimed', 'true');
+
+    document.getElementById('secret-code-result').innerHTML = `
+        <div class="cipher-success">
+            <div style="font-size:3em; margin-bottom:12px;">🎉</div>
+            <div style="font-size:1.2em; font-weight:700; color:#4CAF50; margin-bottom:8px;">
+                Правильно! Вітаємо!
+            </div>
+            <div style="color:var(--text-secondary); margin-bottom:16px;">
+                Напишіть <strong style="color:#FF0000">@dankaklytoii</strong> в Telegram<br>
+                щоб отримати 50 зірок!
+            </div>
+            <a href="https://t.me/dankaklytoii" target="_blank" class="cipher-tg-btn">
+                ✉️ Написати @dankaklytoii
+            </a>
+        </div>
+    `;
+
+    // Відключити поля
+    const inp = document.getElementById('secret-code-input');
+    const btn = document.getElementById('secret-code-btn');
+    if (inp) inp.disabled = true;
+    if (btn) btn.disabled = true;
+}
 function checkFounderAccess() {
     if (telegramUser?.username === 'dankaklytoii') {
         const nav = document.getElementById('founder-nav');
@@ -895,6 +1262,16 @@ async function init() {
         el.className = 'accessory ' + allAccessories[currentAccessoryId].className;
         mainCharacter.appendChild(el);
     }
+
+    // Застосувати збережену тему
+    if (activeTheme && activeTheme !== 'default') {
+        applyTheme(activeTheme);
+    }
+
+    // Рендер лабораторії та налаштувань
+    renderLabRecipes();
+    renderThemeSettings();
+    updateInventory();
 
     // Компенсація
     if (localStorage.getItem('compensationClaimed') === 'true') {

@@ -267,45 +267,27 @@
         <!-- Лабораторія -->
         <div id="cases-lab" class="cases-subtab">
             <h2 class="section-title">🔬 Лабораторія</h2>
-            <div class="lab-notice">
-                <div class="lab-notice-icon">🚧</div>
-                <h3>В розробці</h3>
-                <p>Тут ви зможете поєднувати осколки для отримання тем вчителів!</p>
-            </div>
-            <div class="lab-recipes">
-                <div class="lab-recipe">
-                    <div class="recipe-ingredients">
-                        <span class="recipe-item">⚪ ×5</span>
-                        <span class="recipe-plus">+</span>
-                        <span class="recipe-item">🔵 ×3</span>
-                    </div>
-                    <div class="recipe-arrow">→</div>
-                    <div class="recipe-result">🎨 Тема вчителя</div>
-                    <button class="recipe-btn" disabled>Скоро</button>
-                </div>
-                <div class="lab-recipe">
-                    <div class="recipe-ingredients">
-                        <span class="recipe-item">🧠 ×5</span>
-                        <span class="recipe-plus">+</span>
-                        <span class="recipe-item">💎 ×3</span>
-                    </div>
-                    <div class="recipe-arrow">→</div>
-                    <div class="recipe-result">🌟 Рідкісна тема</div>
-                    <button class="recipe-btn" disabled>Скоро</button>
-                </div>
-                <div class="lab-recipe secret-recipe">
-                    <div class="recipe-ingredients">
-                        <span class="recipe-item">❓ ×5</span>
-                        <span class="recipe-plus">+</span>
-                        <span class="recipe-item">🏆 ×5</span>
-                    </div>
-                    <div class="recipe-arrow">→</div>
-                    <div class="recipe-result">👑 Секретна тема</div>
-                    <button class="recipe-btn" disabled>Скоро</button>
-                </div>
-            </div>
+            <div id="lab-recipes-container"></div>
         </div>
     </div>
+
+    <!-- Модальне вікно: Підтвердження крафту -->
+    <div id="craft-modal" class="case-modal">
+        <div class="case-modal-content">
+            <button class="case-modal-close" onclick="closeCraftModal()">✕</button>
+            <div class="case-modal-header">
+                <div class="case-modal-emoji" id="craft-modal-icon">⚗️</div>
+                <h2 id="craft-modal-title">Крафт теми</h2>
+            </div>
+            <p style="text-align:center; color: var(--text-secondary); margin-bottom: 20px;">
+                Ви впевнені? Ресурси будуть витрачені безповоротно!
+            </p>
+            <button class="case-confirm-btn" onclick="confirmCraft()">⚗️ Почати крафт</button>
+        </div>
+    </div>
+
+    <!-- Анімація крафту -->
+    <div id="craft-animation-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:1000; justify-content:center; align-items:center;"></div>
 
     <!-- Модальне вікно: Превью кейсу -->
     <div id="case-preview-modal" class="case-modal">
@@ -340,6 +322,51 @@
                 <div class="result-rarity" id="result-rarity">Звичайний</div>
                 <button class="result-close-btn" onclick="closeRoulette()">Забрати!</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Налаштування -->
+    <div id="tab-settings" class="tab-content">
+        <h2 class="section-title">⚙️ Налаштування</h2>
+        
+        <div class="settings-section">
+            <h3 class="settings-subtitle">🎨 Теми</h3>
+            <div id="themes-container" class="themes-grid"></div>
+        </div>
+        
+        <div class="settings-section">
+            <h3 class="settings-subtitle">🔊 Звук</h3>
+            <div class="setting-item">
+                <span>Звукові ефекти</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Вкладка: Секретний розділ -->
+    <div id="tab-secret" class="tab-content">
+        <div class="secret-header">
+            <h2 class="secret-title">!~#*&!$</h2>
+            <div class="secret-subtitle">Секретний розділ</div>
+        </div>
+        
+        <div class="secret-code-section">
+            <h3>🔐 Введіть шифр</h3>
+            <div class="cipher-display">
+                <div class="cipher-label">Шифр:</div>
+                <div class="cipher-value">31f953825106c4204b88ba535eac91bedafc7ab2231f2efe1badb3f14dbb02da</div>
+            </div>
+            <input type="text" id="secret-code-input" class="secret-code-input" placeholder="Введіть відповідь на шифр..." />
+            <button class="secret-code-btn" id="secret-code-btn" onclick="checkSecretCode()">Перевірити</button>
+            <div class="secret-code-result" id="secret-code-result"></div>
+        </div>
+        
+        <div class="secret-hint">
+            <div class="secret-hint-icon">💡</div>
+            <div class="secret-hint-text">Підказка: Шифр прихований у коді гри...</div>
         </div>
     </div>
 
@@ -420,9 +447,17 @@
             <span class="nav-icon">📰</span>
             <span>Новини</span>
         </button>
+        <button class="nav-item" data-tab="settings">
+            <span class="nav-icon">⚙️</span>
+            <span>Налашт.</span>
+        </button>
         <button class="nav-item" data-tab="profile">
             <span class="nav-icon">👤</span>
             <span>Профіль</span>
+        </button>
+        <button class="nav-item" id="secret-nav" data-tab="secret" style="display: none;">
+            <span class="nav-icon">👾</span>
+            <span>!~#*&!$</span>
         </button>
         <button class="nav-item" id="founder-nav" data-tab="founder" style="display: none;">
             <span class="nav-icon">👑</span>
