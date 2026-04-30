@@ -416,6 +416,7 @@ function updateUI() {
 
     updateSecretCardsCounter();
     updateFragmentsDisplay();
+    updateInventory();
     updateButtonStates();
     renderEnergy();
 }
@@ -621,6 +622,201 @@ function spawnSecretCard() {
 setInterval(() => {
     if (secretCardsFound < 5 && Math.random() < 0.3) spawnSecretCard();
 }, 45000);
+
+// === КЕЙСИ ===
+const CASES = {
+    basic: {
+        name: 'Базовий кейс', emoji: '📦', price: 100,
+        chances: { standard: 60, rare: 30, smart: 20, diamond: 10, competitive: 2, strange: 0 }
+    },
+    epic: {
+        name: 'Епік кейс', emoji: '🎁', price: 1000,
+        chances: { standard: 40, rare: 35, smart: 30, diamond: 20, competitive: 8, strange: 0 }
+    },
+    legendary: {
+        name: 'Легендарний кейс', emoji: '💎', price: 5000,
+        chances: { standard: 20, rare: 25, smart: 30, diamond: 35, competitive: 20, strange: 0 }
+    },
+    secret: {
+        name: 'Секретний кейс', emoji: '🌟', price: 1000000,
+        chances: { standard: 0, rare: 0, smart: 25, diamond: 25, competitive: 25, strange: 25 }
+    }
+};
+
+const FRAGMENTS = {
+    standard:    { name: 'Стандартний', icon: '⚪', rarity: 'Звичайний',    color: '#9E9E9E' },
+    rare:        { name: 'Рідкісний',   icon: '🔵', rarity: 'Рідкісний',    color: '#2196F3' },
+    smart:       { name: 'Розумний',    icon: '🧠', rarity: 'Епічний',      color: '#9C27B0' },
+    diamond:     { name: 'Алмазний',    icon: '💎', rarity: 'Легендарний',  color: '#FF9800' },
+    competitive: { name: 'Змагальний',  icon: '🏆', rarity: 'Легендарний',  color: '#FF9800' },
+    strange:     { name: 'Дивний',      icon: '❓', rarity: 'Секретний',    color: '#F44336' }
+};
+
+let currentCaseType = null;
+
+// Підвкладки кейсів
+document.querySelectorAll('.cases-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.cases-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.cases-subtab').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.subtab).classList.add('active');
+    });
+});
+
+// Превью кейсу
+window.openCasePreview = function(caseType) {
+    const c = CASES[caseType];
+    currentCaseType = caseType;
+
+    document.getElementById('preview-emoji').textContent = c.emoji;
+    document.getElementById('preview-title').textContent = c.name;
+    document.getElementById('preview-price').textContent = c.price.toLocaleString() + ' очок';
+
+    // Нормалізувати шанси
+    const total = Object.values(c.chances).reduce((a, b) => a + b, 0);
+    const list = document.getElementById('preview-chances');
+    list.innerHTML = '';
+
+    Object.entries(c.chances).forEach(([key, val]) => {
+        if (val === 0) return;
+        const f = FRAGMENTS[key];
+        const pct = Math.round((val / total) * 100);
+        const barColor = f.color;
+
+        list.innerHTML += `
+            <div class="chance-item">
+                <span class="chance-icon">${f.icon}</span>
+                <div class="chance-info">
+                    <div class="chance-name">${f.name}</div>
+                    <div class="chance-rarity">${f.rarity}</div>
+                </div>
+                <div class="chance-bar-wrap">
+                    <div class="chance-bar" style="width:${pct}%; background:${barColor}"></div>
+                </div>
+                <span class="chance-pct">${pct}%</span>
+            </div>
+        `;
+    });
+
+    // Перевірити баланс
+    const btn = document.getElementById('case-confirm-btn');
+    if (score < c.price) {
+        btn.textContent = `Недостатньо очок (потрібно ${c.price.toLocaleString()})`;
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+    } else {
+        btn.textContent = `Відкрити за ${c.price.toLocaleString()} очок`;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+
+    document.getElementById('case-preview-modal').classList.add('open');
+};
+
+window.closeCasePreview = function() {
+    document.getElementById('case-preview-modal').classList.remove('open');
+};
+
+// Підтвердження відкриття
+window.confirmOpenCase = function() {
+    const c = CASES[currentCaseType];
+    if (score < c.price) return;
+
+    score -= c.price;
+    updateUI();
+    saveToLocal();
+
+    closeCasePreview();
+    startRoulette(currentCaseType);
+};
+
+// Рулетка
+function rollFragment(caseType) {
+    const chances = CASES[caseType].chances;
+    const pool = [];
+    Object.entries(chances).forEach(([key, weight]) => {
+        for (let i = 0; i < weight; i++) pool.push(key);
+    });
+    return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function startRoulette(caseType) {
+    const modal = document.getElementById('roulette-modal');
+    const track = document.getElementById('roulette-track');
+    const resultDiv = document.getElementById('roulette-result');
+
+    modal.classList.add('open');
+    resultDiv.style.display = 'none';
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0)';
+
+    // Визначити результат
+    const winner = rollFragment(caseType);
+
+    // Генерувати елементи рулетки (40 штук)
+    const allFragments = Object.keys(CASES[caseType].chances).filter(k => CASES[caseType].chances[k] > 0);
+    const items = [];
+
+    for (let i = 0; i < 40; i++) {
+        if (i === 32) {
+            items.push(winner); // Переможець на позиції 32
+        } else {
+            items.push(allFragments[Math.floor(Math.random() * allFragments.length)]);
+        }
+    }
+
+    track.innerHTML = items.map((key, i) => {
+        const f = FRAGMENTS[key];
+        return `<div class="roulette-item ${i === 32 ? 'highlight' : ''}">
+            <span class="roulette-item-icon">${f.icon}</span>
+            <span class="roulette-item-name">${f.name}</span>
+        </div>`;
+    }).join('');
+
+    // Анімація прокрутки
+    const itemWidth = 82; // 74px + 8px gap
+    const targetX = -(32 * itemWidth) + (window.innerWidth / 2) - 37;
+
+    setTimeout(() => {
+        track.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+        track.style.transform = `translateX(${targetX}px)`;
+    }, 100);
+
+    // Показати результат
+    setTimeout(() => {
+        const f = FRAGMENTS[winner];
+        document.getElementById('result-icon').textContent = f.icon;
+        document.getElementById('result-name').textContent = f.name + ' осколок';
+        document.getElementById('result-rarity').textContent = f.rarity;
+        document.getElementById('result-rarity').style.color = f.color;
+
+        // Додати осколок
+        fragments[winner] = (fragments[winner] || 0) + 1;
+        updateInventory();
+        saveToLocal();
+
+        resultDiv.style.display = 'block';
+        track.style.display = 'none';
+        document.querySelector('.roulette-arrow').style.display = 'none';
+    }, 4500);
+}
+
+window.closeRoulette = function() {
+    document.getElementById('roulette-modal').classList.remove('open');
+    document.getElementById('roulette-track').style.display = 'flex';
+    document.querySelector('.roulette-arrow').style.display = 'block';
+};
+
+function updateInventory() {
+    Object.keys(fragments).forEach(key => {
+        const el = document.getElementById('inv-' + key);
+        if (el) el.textContent = fragments[key] || 0;
+        // Також старі елементи
+        const old = document.getElementById('fragment-' + key);
+        if (old) old.textContent = fragments[key] || 0;
+    });
+}
 
 // === ОСНОВАТЕЛЬ ===
 function checkFounderAccess() {

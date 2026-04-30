@@ -177,78 +177,168 @@
         </div>
     </div>
 
-    <!-- Вкладка: Кейси (В розробці) -->
+    <!-- Вкладка: Кейси -->
     <div id="tab-cases" class="tab-content">
-        <h2 class="section-title">📦 Кейси</h2>
-        <div class="dev-notice">
-            <h3>🚧 В розробці</h3>
-            <p>Скоро тут з'являться кейси з осколками вчителів!</p>
+        <!-- Підвкладки -->
+        <div class="cases-tabs">
+            <button class="cases-tab-btn active" data-subtab="cases-open">📦 Кейси</button>
+            <button class="cases-tab-btn" data-subtab="cases-inventory">🎒 Інвентар</button>
+            <button class="cases-tab-btn" data-subtab="cases-lab">🔬 Лабораторія</button>
         </div>
-        <div class="cases-grid">
-            <div class="case-item">
-                <div class="case-icon">📦</div>
-                <h3>Базовий кейс</h3>
-                <p>Стандартний + Рідкісний осколок</p>
-                <div class="case-price">100 очок</div>
-                <button class="case-button" disabled>Скоро</button>
-            </div>
-            <div class="case-item">
-                <div class="case-icon">🎁</div>
-                <h3>Епік кейс</h3>
-                <p>Розумний + Алмазний осколок</p>
-                <div class="case-price">1,000 очок</div>
-                <button class="case-button" disabled>Скоро</button>
-            </div>
-            <div class="case-item">
-                <div class="case-icon">💎</div>
-                <h3>Легендарний кейс</h3>
-                <p>Змагальний осколок</p>
-                <div class="case-price">5,000 очок</div>
-                <button class="case-button" disabled>Скоро</button>
-            </div>
-            <div class="case-item secret-case">
-                <div class="case-icon">🌟</div>
-                <h3>Секретний кейс</h3>
-                <p>Дивний осколок + всі інші</p>
-                <div class="case-price">1,000,000 очок</div>
-                <div class="case-timer">Доступний 5 днів</div>
-                <button class="case-button" disabled>Скоро</button>
+
+        <!-- Відкриття кейсів -->
+        <div id="cases-open" class="cases-subtab active">
+            <div class="cases-grid">
+                <div class="case-card" data-case="basic">
+                    <div class="case-glow basic-glow"></div>
+                    <div class="case-emoji">📦</div>
+                    <h3>Базовий</h3>
+                    <div class="case-price-tag">100 очок</div>
+                    <button class="case-open-btn" onclick="openCasePreview('basic')">Відкрити</button>
+                </div>
+                <div class="case-card" data-case="epic">
+                    <div class="case-glow epic-glow"></div>
+                    <div class="case-emoji">🎁</div>
+                    <h3>Епік</h3>
+                    <div class="case-price-tag">1,000 очок</div>
+                    <button class="case-open-btn" onclick="openCasePreview('epic')">Відкрити</button>
+                </div>
+                <div class="case-card" data-case="legendary">
+                    <div class="case-glow legendary-glow"></div>
+                    <div class="case-emoji">💎</div>
+                    <h3>Легендарний</h3>
+                    <div class="case-price-tag">5,000 очок</div>
+                    <button class="case-open-btn" onclick="openCasePreview('legendary')">Відкрити</button>
+                </div>
+                <div class="case-card secret-case-card" data-case="secret">
+                    <div class="case-glow secret-glow"></div>
+                    <div class="case-emoji">🌟</div>
+                    <h3>Секретний</h3>
+                    <div class="case-price-tag">1,000,000 очок</div>
+                    <div class="case-timer-label" id="secret-case-timer">⏳ 5 днів</div>
+                    <button class="case-open-btn secret-btn" onclick="openCasePreview('secret')">Відкрити</button>
+                </div>
             </div>
         </div>
-        
-        <div class="fragments-section">
-            <h3>🧩 Мої осколки</h3>
-            <div class="fragments-grid">
-                <div class="fragment-item">
-                    <span class="fragment-icon">⚪</span>
-                    <span class="fragment-name">Стандартний</span>
-                    <span class="fragment-count" id="fragment-standard">0</span>
+
+        <!-- Інвентар -->
+        <div id="cases-inventory" class="cases-subtab">
+            <h2 class="section-title">🎒 Мої осколки</h2>
+            <div class="inventory-grid">
+                <div class="inventory-item" data-fragment="standard">
+                    <div class="inventory-icon">⚪</div>
+                    <div class="inventory-name">Стандартний</div>
+                    <div class="inventory-rarity common">Звичайний</div>
+                    <div class="inventory-count" id="inv-standard">0</div>
                 </div>
-                <div class="fragment-item">
-                    <span class="fragment-icon">🔵</span>
-                    <span class="fragment-name">Рідкісний</span>
-                    <span class="fragment-count" id="fragment-rare">0</span>
+                <div class="inventory-item" data-fragment="rare">
+                    <div class="inventory-icon">🔵</div>
+                    <div class="inventory-name">Рідкісний</div>
+                    <div class="inventory-rarity rare">Рідкісний</div>
+                    <div class="inventory-count" id="inv-rare">0</div>
                 </div>
-                <div class="fragment-item">
-                    <span class="fragment-icon">🧠</span>
-                    <span class="fragment-name">Розумний</span>
-                    <span class="fragment-count" id="fragment-smart">0</span>
+                <div class="inventory-item" data-fragment="smart">
+                    <div class="inventory-icon">🧠</div>
+                    <div class="inventory-name">Розумний</div>
+                    <div class="inventory-rarity epic">Епічний</div>
+                    <div class="inventory-count" id="inv-smart">0</div>
                 </div>
-                <div class="fragment-item">
-                    <span class="fragment-icon">💎</span>
-                    <span class="fragment-name">Алмазний</span>
-                    <span class="fragment-count" id="fragment-diamond">0</span>
+                <div class="inventory-item" data-fragment="diamond">
+                    <div class="inventory-icon">💎</div>
+                    <div class="inventory-name">Алмазний</div>
+                    <div class="inventory-rarity legendary">Легендарний</div>
+                    <div class="inventory-count" id="inv-diamond">0</div>
                 </div>
-                <div class="fragment-item">
-                    <span class="fragment-icon">🏆</span>
-                    <span class="fragment-name">Змагальний</span>
-                    <span class="fragment-count" id="fragment-competitive">0</span>
+                <div class="inventory-item" data-fragment="competitive">
+                    <div class="inventory-icon">🏆</div>
+                    <div class="inventory-name">Змагальний</div>
+                    <div class="inventory-rarity legendary">Легендарний</div>
+                    <div class="inventory-count" id="inv-competitive">0</div>
                 </div>
-                <div class="fragment-item">
-                    <span class="fragment-icon">❓</span>
-                    <span class="fragment-name">Дивний</span>
-                    <span class="fragment-count" id="fragment-strange">0</span>
+                <div class="inventory-item" data-fragment="strange">
+                    <div class="inventory-icon">❓</div>
+                    <div class="inventory-name">Дивний</div>
+                    <div class="inventory-rarity secret">Секретний</div>
+                    <div class="inventory-count" id="inv-strange">0</div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Лабораторія -->
+        <div id="cases-lab" class="cases-subtab">
+            <h2 class="section-title">🔬 Лабораторія</h2>
+            <div class="lab-notice">
+                <div class="lab-notice-icon">🚧</div>
+                <h3>В розробці</h3>
+                <p>Тут ви зможете поєднувати осколки для отримання тем вчителів!</p>
+            </div>
+            <div class="lab-recipes">
+                <div class="lab-recipe">
+                    <div class="recipe-ingredients">
+                        <span class="recipe-item">⚪ ×5</span>
+                        <span class="recipe-plus">+</span>
+                        <span class="recipe-item">🔵 ×3</span>
+                    </div>
+                    <div class="recipe-arrow">→</div>
+                    <div class="recipe-result">🎨 Тема вчителя</div>
+                    <button class="recipe-btn" disabled>Скоро</button>
+                </div>
+                <div class="lab-recipe">
+                    <div class="recipe-ingredients">
+                        <span class="recipe-item">🧠 ×5</span>
+                        <span class="recipe-plus">+</span>
+                        <span class="recipe-item">💎 ×3</span>
+                    </div>
+                    <div class="recipe-arrow">→</div>
+                    <div class="recipe-result">🌟 Рідкісна тема</div>
+                    <button class="recipe-btn" disabled>Скоро</button>
+                </div>
+                <div class="lab-recipe secret-recipe">
+                    <div class="recipe-ingredients">
+                        <span class="recipe-item">❓ ×5</span>
+                        <span class="recipe-plus">+</span>
+                        <span class="recipe-item">🏆 ×5</span>
+                    </div>
+                    <div class="recipe-arrow">→</div>
+                    <div class="recipe-result">👑 Секретна тема</div>
+                    <button class="recipe-btn" disabled>Скоро</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно: Превью кейсу -->
+    <div id="case-preview-modal" class="case-modal">
+        <div class="case-modal-content">
+            <button class="case-modal-close" onclick="closeCasePreview()">✕</button>
+            <div class="case-modal-header">
+                <div class="case-modal-emoji" id="preview-emoji">📦</div>
+                <h2 id="preview-title">Базовий кейс</h2>
+                <div class="case-modal-price" id="preview-price">100 очок</div>
+            </div>
+            <h3 class="chances-title">🎲 Шанси на осколки</h3>
+            <div class="chances-list" id="preview-chances"></div>
+            <button class="case-confirm-btn" id="case-confirm-btn" onclick="confirmOpenCase()">
+                Відкрити кейс
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно: Рулетка -->
+    <div id="roulette-modal" class="case-modal">
+        <div class="roulette-modal-content">
+            <h2 class="roulette-title">🎰 Відкриття кейсу</h2>
+            <div class="roulette-container">
+                <div class="roulette-arrow">▼</div>
+                <div class="roulette-track-wrapper">
+                    <div class="roulette-track" id="roulette-track"></div>
+                </div>
+            </div>
+            <div class="roulette-result" id="roulette-result" style="display:none">
+                <div class="result-icon" id="result-icon">⚪</div>
+                <div class="result-name" id="result-name">Стандартний осколок</div>
+                <div class="result-rarity" id="result-rarity">Звичайний</div>
+                <button class="result-close-btn" onclick="closeRoulette()">Забрати!</button>
             </div>
         </div>
     </div>
