@@ -1194,6 +1194,35 @@ function checkFounderAccess() {
 }
 
 window.giveCoins = () => { score += 10000; updateUI(); saveToLocal(); alert('+10,000 очок!'); };
+
+window.addCustomCoins = () => {
+    const input = document.getElementById('founder-coins-input');
+    const amount = parseInt(input.value);
+    if (!amount || isNaN(amount)) { alert('Введіть кількість!'); return; }
+    score += amount;
+    updateUI();
+    saveToLocal();
+    input.value = '';
+    alert(`✅ Додано ${amount.toLocaleString()} очок!`);
+};
+
+window.addFragment = (type) => {
+    fragments[type] = (fragments[type] || 0) + 1;
+    updateInventory();
+    saveToLocal();
+};
+
+window.addCustomFragments = () => {
+    const type = document.getElementById('founder-fragment-select').value;
+    const amount = parseInt(document.getElementById('founder-fragment-amount').value);
+    if (!amount || isNaN(amount) || amount < 1) { alert('Введіть кількість!'); return; }
+    fragments[type] = (fragments[type] || 0) + amount;
+    updateInventory();
+    saveToLocal();
+    document.getElementById('founder-fragment-amount').value = '';
+    const names = { standard:'Стандартний', rare:'Рідкісний', smart:'Розумний', diamond:'Алмазний', competitive:'Змагальний', strange:'Дивний' };
+    alert(`✅ Додано ${amount}× ${names[type]}!`);
+};
 window.unlockAll = () => {
     upgrades.forEach(u => {
         if (!purchasedUpgrades[u.id]) {

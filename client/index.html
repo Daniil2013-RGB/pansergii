@@ -193,28 +193,28 @@
                     <div class="case-glow basic-glow"></div>
                     <div class="case-emoji">📦</div>
                     <h3>Базовий</h3>
-                    <div class="case-price-tag">100 очок</div>
+                    <div class="case-price-tag">5,000,000 очок</div>
                     <button class="case-open-btn" onclick="openCasePreview('basic')">Відкрити</button>
                 </div>
                 <div class="case-card" data-case="epic">
                     <div class="case-glow epic-glow"></div>
                     <div class="case-emoji">🎁</div>
                     <h3>Епік</h3>
-                    <div class="case-price-tag">1,000 очок</div>
+                    <div class="case-price-tag">10,000,000 очок</div>
                     <button class="case-open-btn" onclick="openCasePreview('epic')">Відкрити</button>
                 </div>
                 <div class="case-card" data-case="legendary">
                     <div class="case-glow legendary-glow"></div>
                     <div class="case-emoji">💎</div>
                     <h3>Легендарний</h3>
-                    <div class="case-price-tag">5,000 очок</div>
+                    <div class="case-price-tag">30,000,000 очок</div>
                     <button class="case-open-btn" onclick="openCasePreview('legendary')">Відкрити</button>
                 </div>
                 <div class="case-card secret-case-card" data-case="secret">
                     <div class="case-glow secret-glow"></div>
                     <div class="case-emoji">🌟</div>
                     <h3>Секретний</h3>
-                    <div class="case-price-tag">1,000,000 очок</div>
+                    <div class="case-price-tag">250,000,000 очок</div>
                     <div class="case-timer-label" id="secret-case-timer">⏳ 5 днів</div>
                     <button class="case-open-btn secret-btn" onclick="openCasePreview('secret')">Відкрити</button>
                 </div>
@@ -378,12 +378,51 @@
                 <span class="founder-icon">👑</span>
                 <span class="founder-text">Основатель проекту</span>
             </div>
-            <div class="founder-controls">
-                <button class="founder-btn" onclick="giveCoins()">💰 +10,000 очок</button>
-                <button class="founder-btn" onclick="unlockAll()">🔓 Розблокувати все</button>
-                <button class="founder-btn" onclick="resetProgress()">🔄 Скинути прогрес</button>
-                <button class="founder-btn" onclick="spawnSecretCard()">🎁 Створити карточку</button>
-                <button class="founder-btn" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); grid-column: 1/-1;" onclick="forceSyncAll()">🔄 Примусова синхронізація всіх</button>
+            
+            <!-- Швидкі дії -->
+            <div class="founder-section">
+                <h3 class="founder-section-title">⚡ Швидкі дії</h3>
+                <div class="founder-controls">
+                    <button class="founder-btn" onclick="giveCoins()">💰 +10,000 очок</button>
+                    <button class="founder-btn" onclick="unlockAll()">🔓 Розблокувати все</button>
+                    <button class="founder-btn" onclick="resetProgress()">🔄 Скинути прогрес</button>
+                    <button class="founder-btn" onclick="spawnSecretCard()">🎁 Створити карточку</button>
+                    <button class="founder-btn" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); grid-column: 1/-1;" onclick="forceSyncAll()">🔄 Примусова синхронізація всіх</button>
+                </div>
+            </div>
+
+            <!-- Накрутка очок -->
+            <div class="founder-section">
+                <h3 class="founder-section-title">💰 Накрутка очок</h3>
+                <div class="founder-input-group">
+                    <input type="number" id="founder-coins-input" class="founder-input" placeholder="Кількість очок" />
+                    <button class="founder-action-btn" onclick="addCustomCoins()">➕ Додати</button>
+                </div>
+            </div>
+
+            <!-- Додати осколки -->
+            <div class="founder-section">
+                <h3 class="founder-section-title">🧩 Додати осколки</h3>
+                <div class="founder-fragments-grid">
+                    <button class="founder-fragment-btn" onclick="addFragment('standard')">⚪ +1 Стандартний</button>
+                    <button class="founder-fragment-btn" onclick="addFragment('rare')">🔵 +1 Рідкісний</button>
+                    <button class="founder-fragment-btn" onclick="addFragment('smart')">🧠 +1 Розумний</button>
+                    <button class="founder-fragment-btn" onclick="addFragment('diamond')">💎 +1 Алмазний</button>
+                    <button class="founder-fragment-btn" onclick="addFragment('competitive')">🏆 +1 Змагальний</button>
+                    <button class="founder-fragment-btn" onclick="addFragment('strange')">❓ +1 Дивний</button>
+                </div>
+                <div class="founder-input-group" style="margin-top: 12px;">
+                    <select id="founder-fragment-select" class="founder-input">
+                        <option value="standard">⚪ Стандартний</option>
+                        <option value="rare">🔵 Рідкісний</option>
+                        <option value="smart">🧠 Розумний</option>
+                        <option value="diamond">💎 Алмазний</option>
+                        <option value="competitive">🏆 Змагальний</option>
+                        <option value="strange">❓ Дивний</option>
+                    </select>
+                    <input type="number" id="founder-fragment-amount" class="founder-input" placeholder="Кількість" style="max-width: 100px;" />
+                    <button class="founder-action-btn" onclick="addCustomFragments()">➕ Додати</button>
+                </div>
             </div>
         </div>
     </div>
