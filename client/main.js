@@ -540,6 +540,8 @@ function setupNavigation() {
             const tab = document.getElementById('tab-' + tabId);
             if (tab) tab.classList.add('active');
             if (tabId === 'leaderboard') loadLeaderboard();
+            if (tabId === 'cases') renderLabRecipes();
+            if (tabId === 'settings') renderThemeSettings();
         });
     });
 }
@@ -1202,6 +1204,7 @@ window.addCustomCoins = () => {
     score += amount;
     updateUI();
     saveToLocal();
+    renderLabRecipes(); // Оновити рецепти
     input.value = '';
     alert(`✅ Додано ${amount.toLocaleString()} очок!`);
 };
@@ -1210,6 +1213,7 @@ window.addFragment = (type) => {
     fragments[type] = (fragments[type] || 0) + 1;
     updateInventory();
     saveToLocal();
+    renderLabRecipes(); // Оновити рецепти
 };
 
 window.addCustomFragments = () => {
@@ -1219,6 +1223,7 @@ window.addCustomFragments = () => {
     fragments[type] = (fragments[type] || 0) + amount;
     updateInventory();
     saveToLocal();
+    renderLabRecipes(); // Оновити рецепти
     document.getElementById('founder-fragment-amount').value = '';
     const names = { standard:'Стандартний', rare:'Рідкісний', smart:'Розумний', diamond:'Алмазний', competitive:'Змагальний', strange:'Дивний' };
     alert(`✅ Додано ${amount}× ${names[type]}!`);
