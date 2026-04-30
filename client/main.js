@@ -732,10 +732,114 @@ async function init() {
         }
     });
 
-    // Синхронізація в Firebase раз на 5 хвилин
-    setInterval(async () => {
-        await syncToFirebase();
-    }, 5 * 60 * 1000);
+    // Синхронізація в Firebase раз на 1 годину
+    const SYNC_INTERVAL = 60 * 60 * 1000; // 1 година
+    
+    // Перевірити коли була остання синхронізація
+    const lastSyncTime = parseInt(localStorage.getItem('lastSyncTime') || '0');
+    const now = Date.now();
+    const timeSinceSync = now - lastSyncTime;
+    const timeUntilSync = Math.max(0, SYNC_INTERVAL - timeSinceSync);
+    
+    // Запустити таймер до наступної синхронізації
+    startSyncCountdown(timeUntilSync);
 }
+
+// ─── Таймер синхронізації ──────────────────────────────────────────────────────
+let syncCountdownInterval = null;
+
+function startSyncCountdown(initialMs) {
+    let remaining = initialMs;
+    
+    updateSyncTimer(remaining);
+    
+    clearInterval(syncCountdownInterval);
+    syncCountdownInterval = setInterval(async () => {
+        remaining -= 1000;
+        updateSyncTimer(remaining);
+        
+        if (remaining <= 0) {
+            clearInterval(syncCountdownInterval);
+            
+            // Показати повідомлення про синхронізацію
+            showSyncOverlay();
+            
+            // Синхронізувати
+            saveToLocal();
+            await syncToFirebase();
+            
+            localStorage.setItem('lastSyncTime', Date.now().toString());
+            
+            // Перезапустити таймер на 1 годину
+            hideSyncOverlay();
+            startSyncCountdown(60 * 60 * 1000);
+        }
+    }, 1000);
+}
+
+function updateSyncTimer(ms) {
+    const el = document.getElementById('sync-timer');
+    if (!el) return;
+    
+    if (ms <= 0) {
+        el.textContent = 'Синхронізація...';
+        return;
+    }
+    
+    const totalSecs = Math.floor(ms / 1000);
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    el.textContent = `Оновлення через ${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+function showSyncOverlay() {
+    let overlay = document.getElementById('sync-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'sync-overlay';
+        overlay.innerHTML = `
+            <div class="sync-overlay-content">
+                <div class="sync-spinner"></div>
+                <div class="sync-text">Синхронізація даних...</div>
+                <div class="sync-subtext">Зберігаємо ваш прогрес</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+    overlay.style.display = 'flex';
+}
+
+function hideSyncOverlay() {
+    const overlay = document.getElementById('sync-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+// Примусова синхронізація (для основателя)
+window.forceSyncAll = async function() {
+    const btn = event?.target;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Синхронізуємо...'; }
+    
+    showSyncOverlay();
+    saveToLocal();
+    await syncToFirebase();
+    localStorage.setItem('lastSyncTime', Date.now().toString());
+    hideSyncOverlay();
+    
+    // Перезапустити таймер
+    clearInterval(syncCountdownInterval);
+    startSyncCountdown(60 * 60 * 1000);
+    
+    if (btn) {
+        btn.textContent = '✅ Синхронізовано!';
+        btn.style.background = '#4CAF50';
+        setTimeout(() => {
+            btn.textContent = '🔄 Примусова синхронізація';
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 2000);
+    }
+    
+    alert('✅ Дані синхронізовано з Firebase!');
+};
 
 init();

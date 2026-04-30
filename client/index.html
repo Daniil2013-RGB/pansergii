@@ -130,7 +130,10 @@
 
     <!-- Вкладка: Лідерборд -->
     <div id="tab-leaderboard" class="tab-content">
-        <h2 class="section-title">🏆 Лідерборд</h2>
+        <div class="leaderboard-header">
+            <h2 class="section-title">🏆 Лідерборд</h2>
+            <div class="sync-timer-badge" id="sync-timer">Завантаження...</div>
+        </div>
         
         <!-- Подіум для топ-3 -->
         <div class="podium-container" id="podium-container">
@@ -263,6 +266,7 @@
                 <button class="founder-btn" onclick="unlockAll()">🔓 Розблокувати все</button>
                 <button class="founder-btn" onclick="resetProgress()">🔄 Скинути прогрес</button>
                 <button class="founder-btn" onclick="spawnSecretCard()">🎁 Створити карточку</button>
+                <button class="founder-btn" style="background: linear-gradient(135deg, #4CAF50, #2E7D32); grid-column: 1/-1;" onclick="forceSyncAll()">🔄 Примусова синхронізація всіх</button>
             </div>
         </div>
     </div>
