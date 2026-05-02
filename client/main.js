@@ -121,7 +121,7 @@ let fragments = { standard:0, rare:0, smart:0, diamond:0, competitive:0, strange
 let currentTheme = 'default';
 
 // === ЕНЕРГІЯ ===
-const MAX_ENERGY = 300;
+const MAX_ENERGY = 700;
 const ENERGY_REGEN_PER_SEC = MAX_ENERGY / (3 * 3600); // 100 за 3 години
 let energy = MAX_ENERGY;
 let lastEnergyUpdate = Date.now();
@@ -703,19 +703,19 @@ setInterval(() => {
 // === КЕЙСИ ===
 const CASES = {
     basic: {
-        name: 'Базовий кейс', emoji: '📦', price: 5000000,
+        name: 'Базовий кейс', emoji: '📦', price: 2000000,
         chances: { standard: 60, rare: 30, smart: 20, diamond: 10, competitive: 2, strange: 0 }
     },
     epic: {
-        name: 'Епік кейс', emoji: '🎁', price: 10000000,
+        name: 'Епік кейс', emoji: '🎁', price: 8000000,
         chances: { standard: 40, rare: 35, smart: 30, diamond: 20, competitive: 8, strange: 0 }
     },
     legendary: {
-        name: 'Легендарний кейс', emoji: '💎', price: 30000000,
+        name: 'Легендарний кейс', emoji: '💎', price: 20000000,
         chances: { standard: 20, rare: 25, smart: 30, diamond: 35, competitive: 20, strange: 0 }
     },
     secret: {
-        name: 'Секретний кейс', emoji: '🌟', price: 250000000,
+        name: 'Секретний кейс', emoji: '🌟', price: 100000000,
         chances: { standard: 0, rare: 0, smart: 25, diamond: 25, competitive: 25, strange: 25 }
     }
 };
@@ -947,7 +947,7 @@ const LAB_RECIPES = [
         name: 'Звичайна тема',
         icon: '🎨',
         ingredients: { standard: 5, rare: 3 },
-        cost: 40000000,
+        cost: 15000000,
         result: ['math', 'nature', 'space'],
         rarity: 'common'
     },
@@ -956,7 +956,7 @@ const LAB_RECIPES = [
         name: 'Рідкісна тема',
         icon: '✨',
         ingredients: { smart: 5, diamond: 3 },
-        cost: 70000000,
+        cost: 40000000,
         result: ['rich', 'ai', 'fire'],
         rarity: 'rare'
     },
@@ -965,7 +965,7 @@ const LAB_RECIPES = [
         name: '!~#*&!$',
         icon: '👾',
         ingredients: { strange: 5, competitive: 5 },
-        cost: 350000000,
+        cost: 150000000,
         result: ['glitch'],
         rarity: 'secret'
     }
