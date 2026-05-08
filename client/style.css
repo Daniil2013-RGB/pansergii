@@ -2332,20 +2332,23 @@ body.glitch-theme #theme-particles div {
 
 /* Картель — темно-зелений з черепами */
 .acc-premium-cartel {
-    background: linear-gradient(135deg, #1a2a1a, #2d4a2d);
-    border-color: rgba(0,200,0,0.3);
+    background: radial-gradient(circle at 30% 50%, #1a0000, #0a0000);
+    border-color: #8B0000 !important;
+    box-shadow: 0 0 20px rgba(180,0,0,0.5);
 }
 
 /* Мані — золото з купюрами */
 .acc-premium-money {
-    background: linear-gradient(135deg, #2a2000, #4a3800);
-    border-color: rgba(255,215,0,0.4);
+    background: radial-gradient(circle at 30% 50%, #3a2800, #1a1200);
+    border-color: #FFD700 !important;
+    box-shadow: 0 0 20px rgba(255,215,0,0.5);
 }
 
 /* Модний — фіолетово-рожевий */
 .acc-premium-fashion {
-    background: linear-gradient(135deg, #2a0a3a, #4a1a5a);
-    border-color: rgba(200,0,255,0.3);
+    background: radial-gradient(circle at 30% 50%, #2a0040, #0a0015);
+    border-color: #CC00FF !important;
+    box-shadow: 0 0 20px rgba(200,0,255,0.5);
 }
 
 .acc-premium-preview {
@@ -2391,86 +2394,165 @@ body.glitch-theme #theme-particles div {
 
 /* ─── Преміум стилі кнопки тапу ─────────────────────────────────────────── */
 
-/* Картель — темно-зелений з черепами */
+/* ══════════════════════════════════════════════
+   💀 КАРТЕЛЬ — страшно і смішно
+══════════════════════════════════════════════ */
 .tap-zone.acc-style-cartel {
-    background: linear-gradient(135deg, #0d2b0d, #1a4a1a, #0d2b0d);
-    box-shadow: 0 0 40px rgba(0, 180, 0, 0.6), 0 0 80px rgba(0, 100, 0, 0.3);
-    border: 3px solid rgba(0, 200, 0, 0.5);
-    animation: cartelPulse 2s ease-in-out infinite;
+    background: radial-gradient(circle at center, #1a0000 0%, #0a0000 60%, #000 100%);
+    box-shadow:
+        0 0 0 4px #8B0000,
+        0 0 30px rgba(180, 0, 0, 0.8),
+        0 0 80px rgba(100, 0, 0, 0.5),
+        inset 0 0 40px rgba(180, 0, 0, 0.2);
+    border: 3px solid #8B0000;
+    animation: cartelPulse 1.5s ease-in-out infinite;
 }
 
 @keyframes cartelPulse {
-    0%, 100% { box-shadow: 0 0 40px rgba(0,180,0,0.6), 0 0 80px rgba(0,100,0,0.3); }
-    50%       { box-shadow: 0 0 60px rgba(0,220,0,0.8), 0 0 100px rgba(0,150,0,0.5); }
+    0%, 100% {
+        box-shadow: 0 0 0 4px #8B0000, 0 0 30px rgba(180,0,0,0.8), 0 0 80px rgba(100,0,0,0.5), inset 0 0 40px rgba(180,0,0,0.2);
+    }
+    50% {
+        box-shadow: 0 0 0 6px #FF0000, 0 0 60px rgba(255,0,0,1), 0 0 120px rgba(180,0,0,0.7), inset 0 0 60px rgba(255,0,0,0.3);
+    }
 }
 
+/* Зброя по кутах */
 .tap-zone.acc-style-cartel::before {
-    content: '💀';
+    content: '🔫';
     position: absolute;
-    top: 8px; left: 8px;
-    font-size: 1.2em;
-    opacity: 0.8;
+    top: 6px; left: 6px;
+    font-size: 1.4em;
+    animation: gunShake 0.5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 6px red);
 }
 
 .tap-zone.acc-style-cartel::after {
-    content: '💀';
+    content: '💣';
     position: absolute;
-    bottom: 8px; right: 8px;
-    font-size: 1.2em;
-    opacity: 0.8;
+    bottom: 6px; right: 6px;
+    font-size: 1.4em;
+    animation: bombBounce 0.8s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 6px orange);
 }
 
-/* Мані — золото з купюрами */
+@keyframes gunShake {
+    from { transform: rotate(-15deg) scale(1); }
+    to   { transform: rotate(15deg) scale(1.2); }
+}
+
+@keyframes bombBounce {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(-4px) scale(1.15); }
+}
+
+/* Додаткові елементи через JS-частинки */
+.tap-zone.acc-style-cartel .main-character-img {
+    filter: contrast(1.2) saturate(0.8) sepia(0.3);
+    border: 3px solid #8B0000;
+}
+
+/* ══════════════════════════════════════════════
+   💸 МАНІ МАНІ — все в грошах
+══════════════════════════════════════════════ */
 .tap-zone.acc-style-money {
-    background: linear-gradient(135deg, #3a2800, #6a4a00, #3a2800);
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.7), 0 0 80px rgba(255, 165, 0, 0.4);
-    border: 3px solid rgba(255, 215, 0, 0.6);
-    animation: moneyPulse 1.5s ease-in-out infinite;
+    background: radial-gradient(circle at 30% 30%, #5a4000 0%, #2a1e00 50%, #1a1200 100%);
+    box-shadow:
+        0 0 0 4px #FFD700,
+        0 0 40px rgba(255, 215, 0, 0.9),
+        0 0 100px rgba(255, 165, 0, 0.5),
+        inset 0 0 50px rgba(255, 215, 0, 0.15);
+    border: 3px solid #FFD700;
+    animation: moneyPulse 1s ease-in-out infinite;
 }
 
 @keyframes moneyPulse {
-    0%, 100% { box-shadow: 0 0 40px rgba(255,215,0,0.7), 0 0 80px rgba(255,165,0,0.4); }
-    50%       { box-shadow: 0 0 70px rgba(255,215,0,1), 0 0 120px rgba(255,165,0,0.6); }
+    0%, 100% {
+        box-shadow: 0 0 0 4px #FFD700, 0 0 40px rgba(255,215,0,0.9), 0 0 100px rgba(255,165,0,0.5), inset 0 0 50px rgba(255,215,0,0.15);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 0 6px #FFF700, 0 0 70px rgba(255,255,0,1), 0 0 140px rgba(255,215,0,0.7), inset 0 0 70px rgba(255,215,0,0.25);
+        transform: scale(1.02);
+    }
 }
 
 .tap-zone.acc-style-money::before {
     content: '💵';
     position: absolute;
-    top: 8px; left: 8px;
-    font-size: 1.2em;
+    top: 6px; left: 6px;
+    font-size: 1.5em;
+    animation: moneyFloat 1.2s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 8px gold);
 }
 
 .tap-zone.acc-style-money::after {
-    content: '💰';
+    content: '🤑';
     position: absolute;
-    bottom: 8px; right: 8px;
-    font-size: 1.2em;
+    bottom: 6px; right: 6px;
+    font-size: 1.5em;
+    animation: moneyFloat 1s ease-in-out infinite alternate-reverse;
+    filter: drop-shadow(0 0 8px gold);
 }
 
-/* Модний Сергій — фіолетово-рожевий */
+@keyframes moneyFloat {
+    from { transform: translateY(0) rotate(-10deg); }
+    to   { transform: translateY(-6px) rotate(10deg); }
+}
+
+.tap-zone.acc-style-money .main-character-img {
+    filter: sepia(0.4) saturate(1.5) hue-rotate(10deg);
+    border: 3px solid #FFD700;
+}
+
+/* ══════════════════════════════════════════════
+   🕶️ МОДНИЙ СЕРГІЙ — стиль і блиск
+══════════════════════════════════════════════ */
 .tap-zone.acc-style-fashion {
-    background: linear-gradient(135deg, #2a0040, #6a00aa, #2a0040);
-    box-shadow: 0 0 40px rgba(180, 0, 255, 0.7), 0 0 80px rgba(255, 0, 200, 0.3);
-    border: 3px solid rgba(200, 0, 255, 0.6);
-    animation: fashionPulse 2s ease-in-out infinite;
+    background: radial-gradient(circle at 40% 40%, #3d0060 0%, #1a0030 50%, #0a0015 100%);
+    box-shadow:
+        0 0 0 4px #CC00FF,
+        0 0 40px rgba(200, 0, 255, 0.8),
+        0 0 100px rgba(255, 0, 200, 0.4),
+        inset 0 0 50px rgba(180, 0, 255, 0.2);
+    border: 3px solid #CC00FF;
+    animation: fashionPulse 1.8s ease-in-out infinite;
 }
 
 @keyframes fashionPulse {
-    0%   { box-shadow: 0 0 40px rgba(180,0,255,0.7), 0 0 80px rgba(255,0,200,0.3); }
-    50%  { box-shadow: 0 0 60px rgba(255,0,200,0.8), 0 0 100px rgba(180,0,255,0.5); }
-    100% { box-shadow: 0 0 40px rgba(180,0,255,0.7), 0 0 80px rgba(255,0,200,0.3); }
+    0%   { box-shadow: 0 0 0 4px #CC00FF, 0 0 40px rgba(200,0,255,0.8), 0 0 100px rgba(255,0,200,0.4), inset 0 0 50px rgba(180,0,255,0.2); }
+    33%  { box-shadow: 0 0 0 5px #FF00CC, 0 0 60px rgba(255,0,200,1), 0 0 120px rgba(200,0,255,0.6), inset 0 0 60px rgba(255,0,200,0.25); }
+    66%  { box-shadow: 0 0 0 5px #00CCFF, 0 0 60px rgba(0,200,255,0.8), 0 0 120px rgba(0,150,255,0.5), inset 0 0 60px rgba(0,200,255,0.2); }
+    100% { box-shadow: 0 0 0 4px #CC00FF, 0 0 40px rgba(200,0,255,0.8), 0 0 100px rgba(255,0,200,0.4), inset 0 0 50px rgba(180,0,255,0.2); }
 }
 
 .tap-zone.acc-style-fashion::before {
     content: '🕶️';
     position: absolute;
-    top: 8px; left: 8px;
-    font-size: 1.2em;
+    top: 6px; left: 6px;
+    font-size: 1.5em;
+    animation: fashionSpin 3s linear infinite;
+    filter: drop-shadow(0 0 8px #CC00FF);
 }
 
 .tap-zone.acc-style-fashion::after {
-    content: '✨';
+    content: '💅';
     position: absolute;
-    bottom: 8px; right: 8px;
-    font-size: 1.2em;
+    bottom: 6px; right: 6px;
+    font-size: 1.5em;
+    animation: fashionSpin 3s linear infinite reverse;
+    filter: drop-shadow(0 0 8px #FF00CC);
+}
+
+@keyframes fashionSpin {
+    0%   { transform: rotate(0deg) scale(1); }
+    25%  { transform: rotate(90deg) scale(1.2); }
+    50%  { transform: rotate(180deg) scale(1); }
+    75%  { transform: rotate(270deg) scale(1.2); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+.tap-zone.acc-style-fashion .main-character-img {
+    filter: saturate(1.5) hue-rotate(280deg) brightness(1.1);
+    border: 3px solid #CC00FF;
 }
