@@ -60,13 +60,22 @@
 
     <!-- Вкладка: Магазин -->
     <div id="tab-shop" class="tab-content">
-        <div class="shop-section">
-            <h2 class="section-title">💪 Удосконалення</h2>
-            <div class="shop-grid" id="upgrades-grid"></div>
+        <div class="shop-tabs-inner">
+            <button class="shop-inner-tab active" data-shop="upgrades">💪 Покращення</button>
+            <button class="shop-inner-tab" data-shop="accessories">💎 Прикраси</button>
         </div>
-        <div class="shop-section">
-            <h2 class="section-title">👔 Аксесуари</h2>
-            <div class="shop-grid" id="accessories-grid"></div>
+
+        <!-- Покращення -->
+        <div id="shop-upgrades" class="shop-inner-content active">
+            <div class="upgrades-grid" id="upgrades-grid"></div>
+        </div>
+
+        <!-- Прикраси -->
+        <div id="shop-accessories" class="shop-inner-content">
+            <h3 class="shop-sub-title">🎁 За рівні (безкоштовно)</h3>
+            <div class="accessories-free-grid" id="accessories-free-grid"></div>
+            <h3 class="shop-sub-title" style="margin-top: 24px;">💎 Ексклюзивні прикраси</h3>
+            <div class="accessories-premium-grid" id="accessories-premium-grid"></div>
         </div>
     </div>
 

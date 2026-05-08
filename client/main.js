@@ -151,21 +151,38 @@ const levels = [
 ];
 
 const upgrades = [
-    { id:'upgrade-click-1',    name:'Покращений клік',   description:'+1 очко за клік',   value:1,   cost:100,   type:'click' },
-    { id:'upgrade-auto-1',     name:'Мураха-робітник',   description:'+1 очко/сек',        value:1,   cost:500,   type:'auto'  },
-    { id:'upgrade-click-2',    name:'Сильний клік',      description:'+3 очка за клік',    value:3,   cost:1000,  type:'click' },
-    { id:'upgrade-auto-2',     name:'Маленька ферма',    description:'+5 очок/сек',        value:5,   cost:2000,  type:'auto'  },
-    { id:'upgrade-click-3',    name:'Кулак Сергія',      description:'+10 очок за клік',   value:10,  cost:5000,  type:'click' },
-    { id:'upgrade-auto-3',     name:'Королівство',       description:'+20 очок/сек',       value:20,  cost:10000, type:'auto'  },
-    { id:'upgrade-word-of-god',name:'Слово Пана Сергія', description:'+500 оч. за клік',   value:500, cost:50000, type:'click' },
-    { id:'upgrade-secret-1',   name:'Секретна сила',     description:'+100 оч./сек',       value:100, cost:0,     type:'auto', secret:true }
+    // Базові (дешеві)
+    { id:'upgrade-click-1',    name:'Покращений клік',    emoji:'👆', description:'+1 очко за клік',      value:1,     cost:100,        type:'click' },
+    { id:'upgrade-auto-1',     name:'Мураха-робітник',    emoji:'🐜', description:'+1 очко/сек',           value:1,     cost:500,        type:'auto'  },
+    { id:'upgrade-click-2',    name:'Сильний клік',       emoji:'💪', description:'+3 очка за клік',       value:3,     cost:5000,       type:'click' },
+    { id:'upgrade-auto-2',     name:'Маленька ферма',     emoji:'🌾', description:'+5 очок/сек',           value:5,     cost:20000,      type:'auto'  },
+    { id:'upgrade-click-3',    name:'Кулак Сергія',       emoji:'🥊', description:'+10 очок за клік',      value:10,    cost:100000,     type:'click' },
+    { id:'upgrade-auto-3',     name:'Королівство',        emoji:'👑', description:'+20 очок/сек',          value:20,    cost:500000,     type:'auto'  },
+    // Середні
+    { id:'upgrade-click-4',    name:'Турбо клік',         emoji:'⚡', description:'+50 очок за клік',      value:50,    cost:2000000,    type:'click' },
+    { id:'upgrade-auto-4',     name:'Завод',              emoji:'🏭', description:'+100 очок/сек',         value:100,   cost:5000000,    type:'auto'  },
+    { id:'upgrade-click-5',    name:'Удар долі',          emoji:'🌩️', description:'+200 очок за клік',     value:200,   cost:10000000,   type:'click' },
+    { id:'upgrade-auto-5',     name:'Мегаферма',          emoji:'🚜', description:'+500 очок/сек',         value:500,   cost:25000000,   type:'auto'  },
+    { id:'upgrade-click-6',    name:'Слово Пана Сергія',  emoji:'📢', description:'+500 оч. за клік',      value:500,   cost:50000000,   type:'click' },
+    { id:'upgrade-auto-6',     name:'Корпорація',         emoji:'🏢', description:'+1,000 очок/сек',       value:1000,  cost:80000000,   type:'auto'  },
+    // Дорогі
+    { id:'upgrade-click-7',    name:'Гіперклік',          emoji:'🔥', description:'+2,000 оч. за клік',    value:2000,  cost:150000000,  type:'click' },
+    { id:'upgrade-auto-7',     name:'Мегакорпорація',     emoji:'🌆', description:'+5,000 очок/сек',       value:5000,  cost:300000000,  type:'auto'  },
+    { id:'upgrade-click-8',    name:'Квантовий удар',     emoji:'⚛️', description:'+10,000 оч. за клік',   value:10000, cost:500000000,  type:'click' },
+    // Секретний
+    { id:'upgrade-secret-1',   name:'Секретна сила',      emoji:'🎁', description:'+100 оч./сек',          value:100,   cost:0,          type:'auto', secret:true }
 ];
 
 const allAccessories = {
-    'acc-hat':      { id:'acc-hat',      name:'Шляпа',        className:'accessory-hat'      },
-    'acc-glasses':  { id:'acc-glasses',  name:'Окуляри',      className:'accessory-glasses'  },
-    'acc-gold-hat': { id:'acc-gold-hat', name:'Золота шляпа', className:'accessory-gold-hat' },
-    'acc-crown':    { id:'acc-crown',    name:'Корона',       className:'accessory-crown'    }
+    // Базові (за рівні)
+    'acc-hat':      { id:'acc-hat',      name:'Шляпа',           className:'accessory-hat',      free: true  },
+    'acc-glasses':  { id:'acc-glasses',  name:'Окуляри',         className:'accessory-glasses',  free: true  },
+    'acc-gold-hat': { id:'acc-gold-hat', name:'Золота шляпа',    className:'accessory-gold-hat', free: true  },
+    'acc-crown':    { id:'acc-crown',    name:'Корона',          className:'accessory-crown',    free: true  },
+    // Покупні прикраси
+    'acc-cartel':   { id:'acc-cartel',   name:'Картель',         className:'accessory-cartel',   free: false, cost: 15000000,  emoji: '💀' },
+    'acc-money':    { id:'acc-money',    name:'Мані Мані',       className:'accessory-money',    free: false, cost: 30000000,  emoji: '💸' },
+    'acc-fashion':  { id:'acc-fashion',  name:'Модний Сергій',   className:'accessory-fashion',  free: false, cost: 50000000,  emoji: '🕶️' },
 };
 
 // === ЗБЕРЕЖЕННЯ ===
@@ -538,59 +555,178 @@ function updateLevelAndCheckReward() {
 
 // === МАГАЗИН ===
 function generateShopItems(items, container) {
+    if (!container) return;
     container.innerHTML = '';
     items.forEach(item => {
         if (item.secret && !purchasedUpgrades[item.id]) return;
         const div = document.createElement('div');
-        div.className = 'shop-item';
+        div.className = 'upgrade-card';
+        const tier = item.cost >= 100000000 ? 'legendary' :
+                     item.cost >= 10000000  ? 'epic' :
+                     item.cost >= 1000000   ? 'rare' : 'common';
         const priceText = item.cost > 0 ? item.cost.toLocaleString() + ' очок' : 'БЕЗКОШТОВНО';
-        div.innerHTML = '<div class="shop-item-info"><h3>' + (item.name||'Предмет') + '</h3><p>' + (item.description||'') + '</p><div class="shop-item-price">' + priceText + '</div></div><button class="shop-button" data-id="' + item.id + '" data-cost="' + (item.cost||0) + '">Купити</button>';
+        const isPurchased = purchasedUpgrades[item.id];
+        div.innerHTML = `
+            <div class="upgrade-card-tier tier-${tier}"></div>
+            <div class="upgrade-card-emoji">${item.emoji || '⚡'}</div>
+            <div class="upgrade-card-info">
+                <div class="upgrade-card-name">${item.name}</div>
+                <div class="upgrade-card-desc">${item.description}</div>
+                <div class="upgrade-card-price">${priceText}</div>
+            </div>
+            <button class="upgrade-card-btn ${isPurchased ? 'purchased' : ''}"
+                    data-id="${item.id}" data-cost="${item.cost || 0}"
+                    ${isPurchased ? 'disabled' : ''}>
+                ${isPurchased ? '✓' : 'Купити'}
+            </button>
+        `;
         container.appendChild(div);
     });
 }
 
-function updateButtonStates() {
-    document.querySelectorAll('.shop-button').forEach(btn => {
-        const id   = btn.dataset.id;
-        const cost = parseInt(btn.dataset.cost);
-        const isAcc = allAccessories[id] !== undefined;
-        if (isAcc) {
-            if (purchasedAccessories[id]) {
-                btn.textContent = currentAccessoryId === id ? 'Зняти' : 'Надіти';
-                btn.disabled = false;
-            } else {
-                btn.textContent = 'Нагорода';
-                btn.disabled = true;
-            }
+function generateAccessories() {
+    const freeGrid = document.getElementById('accessories-free-grid');
+    const premiumGrid = document.getElementById('accessories-premium-grid');
+    if (!freeGrid || !premiumGrid) return;
+    freeGrid.innerHTML = '';
+    premiumGrid.innerHTML = '';
+    Object.values(allAccessories).forEach(acc => {
+        const isOwned = purchasedAccessories[acc.id];
+        const isActive = currentAccessoryId === acc.id;
+        const div = document.createElement('div');
+        if (acc.free) {
+            div.className = 'acc-free-item';
+            div.innerHTML = `
+                <div class="acc-free-icon">${acc.emoji || '🎩'}</div>
+                <div class="acc-free-name">${acc.name}</div>
+                <button class="acc-free-btn ${isActive ? 'acc-active' : ''} ${!isOwned ? 'acc-locked' : ''}"
+                        data-id="${acc.id}" ${!isOwned ? 'disabled' : ''}>
+                    ${isActive ? 'Зняти' : isOwned ? 'Надіти' : '🔒 За рівень'}
+                </button>
+            `;
+            freeGrid.appendChild(div);
         } else {
-            if (purchasedUpgrades[id]) {
-                btn.textContent = 'Куплено';
-                btn.disabled = true;
-            } else {
-                btn.textContent = cost > 0 ? 'Купити' : 'Отримати';
-                btn.disabled = cost > 0 && score < cost;
-            }
+            div.className = 'acc-premium-card acc-premium-' + acc.id.replace('acc-', '');
+            div.innerHTML = `
+                <div class="acc-premium-preview">
+                    <div class="acc-premium-emoji">${acc.emoji}</div>
+                </div>
+                <div class="acc-premium-info">
+                    <div class="acc-premium-name">${acc.name}</div>
+                    <div class="acc-premium-price">${acc.cost?.toLocaleString()} очок</div>
+                    <button class="acc-premium-btn ${isActive ? 'acc-active' : ''}"
+                            data-id="${acc.id}" data-cost="${acc.cost || 0}">
+                        ${isActive ? '✓ Активно' : isOwned ? 'Надіти' : 'Купити'}
+                    </button>
+                </div>
+            `;
+            premiumGrid.appendChild(div);
         }
     });
 }
 
+// Внутрішні вкладки магазину
+document.querySelectorAll('.shop-inner-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.shop-inner-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.shop-inner-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('shop-' + btn.dataset.shop).classList.add('active');
+    });
+});
+
+function updateButtonStates() {
+    // Апгрейди
+    document.querySelectorAll('.upgrade-card-btn').forEach(btn => {
+        const id = btn.dataset.id;
+        const cost = parseInt(btn.dataset.cost);
+        if (purchasedUpgrades[id]) {
+            btn.textContent = '✓';
+            btn.disabled = true;
+            btn.classList.add('purchased');
+        } else {
+            btn.textContent = cost > 0 ? 'Купити' : 'Отримати';
+            btn.disabled = cost > 0 && score < cost;
+            btn.classList.remove('purchased');
+        }
+    });
+    // Аксесуари (free)
+    document.querySelectorAll('.acc-free-btn').forEach(btn => {
+        const id = btn.dataset.id;
+        const isOwned = purchasedAccessories[id];
+        const isActive = currentAccessoryId === id;
+        if (!isOwned) { btn.textContent = '🔒 За рівень'; btn.disabled = true; }
+        else if (isActive) { btn.textContent = 'Зняти'; btn.disabled = false; btn.classList.add('acc-active'); }
+        else { btn.textContent = 'Надіти'; btn.disabled = false; btn.classList.remove('acc-active'); }
+    });
+    // Аксесуари (premium)
+    document.querySelectorAll('.acc-premium-btn').forEach(btn => {
+        const id = btn.dataset.id;
+        const cost = parseInt(btn.dataset.cost);
+        const isOwned = purchasedAccessories[id];
+        const isActive = currentAccessoryId === id;
+        if (isActive) { btn.textContent = '✓ Активно'; btn.classList.add('acc-active'); }
+        else if (isOwned) { btn.textContent = 'Надіти'; btn.classList.remove('acc-active'); }
+        else { btn.textContent = cost.toLocaleString() + ' очок'; btn.disabled = score < cost; }
+    });
+}
+
 document.addEventListener('click', e => {
-    const btn = e.target.closest('.shop-button');
-    if (!btn) return;
-    const id = btn.dataset.id;
-    const upgrade = upgrades.find(u => u.id === id);
-    const accessory = allAccessories[id];
-    if (upgrade && !purchasedUpgrades[id] && score >= upgrade.cost) {
-        score -= upgrade.cost;
-        purchasedUpgrades[id] = true;
-        if (upgrade.type === 'click') clickValue += upgrade.value;
-        else autoClickValue += upgrade.value;
-        updateUI();
-        saveToLocal();
-    } else if (accessory && purchasedAccessories[id]) {
-        toggleAccessory(accessory);
-        updateButtonStates();
-        saveToLocal();
+    // Апгрейди
+    const upgradeBtn = e.target.closest('.upgrade-card-btn');
+    if (upgradeBtn && !upgradeBtn.disabled) {
+        const id = upgradeBtn.dataset.id;
+        const upgrade = upgrades.find(u => u.id === id);
+        if (upgrade && !purchasedUpgrades[id] && score >= upgrade.cost) {
+            score -= upgrade.cost;
+            purchasedUpgrades[id] = true;
+            if (upgrade.type === 'click') clickValue += upgrade.value;
+            else autoClickValue += upgrade.value;
+            hapticSuccess();
+            showToast('✅ ' + upgrade.name + ' куплено!', 'success');
+            updateUI();
+            saveToLocal();
+        }
+        return;
+    }
+    // Аксесуари free
+    const freeBtn = e.target.closest('.acc-free-btn');
+    if (freeBtn && !freeBtn.disabled) {
+        const id = freeBtn.dataset.id;
+        if (purchasedAccessories[id]) {
+            toggleAccessory(allAccessories[id]);
+            generateAccessories();
+            updateButtonStates();
+            saveToLocal();
+        }
+        return;
+    }
+    // Аксесуари premium
+    const premBtn = e.target.closest('.acc-premium-btn');
+    if (premBtn) {
+        const id = premBtn.dataset.id;
+        const acc = allAccessories[id];
+        const cost = parseInt(premBtn.dataset.cost);
+        if (purchasedAccessories[id]) {
+            toggleAccessory(acc);
+            generateAccessories();
+            updateButtonStates();
+            saveToLocal();
+        } else if (score >= cost) {
+            score -= cost;
+            purchasedAccessories[id] = true;
+            toggleAccessory(acc);
+            hapticSuccess();
+            showToast('✅ ' + acc.name + ' куплено!', 'success');
+            generateAccessories();
+            updateUI();
+            saveToLocal();
+            syncToFirebase();
+        } else {
+            hapticError();
+            showToast('❌ Недостатньо очок!', 'error');
+        }
+        return;
     }
 });
 
@@ -724,13 +860,9 @@ function showToast(message, type = 'info', duration = 2500) {
 }
 
 // === ЗВУК ===
-const sounds = {
-    caseOpen: new Audio('sounds/case-open.mp3'),
-    tap: null // генеруємо через Web Audio API
-};
-
-// Web Audio для звуку тапу (без файлу)
+// Web Audio для звуку тапу
 let audioCtx = null;
+
 function playTapSound() {
     try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -740,7 +872,7 @@ function playTapSound() {
         gain.connect(audioCtx.destination);
         osc.frequency.setValueAtTime(520, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.08);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
         osc.start(audioCtx.currentTime);
         osc.stop(audioCtx.currentTime + 0.08);
@@ -749,19 +881,32 @@ function playTapSound() {
 
 function playCaseOpenSound() {
     try {
-        sounds.caseOpen.currentTime = 0;
-        sounds.caseOpen.volume = 0.7;
-        sounds.caseOpen.play().catch(() => {});
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Синтезований звук відкриття кейсу — наростаючий акорд
+        const notes = [261, 329, 392, 523, 659];
+        notes.forEach((freq, i) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.08);
+            gain.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.08);
+            gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + i * 0.08 + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.08 + 0.4);
+            osc.start(audioCtx.currentTime + i * 0.08);
+            osc.stop(audioCtx.currentTime + i * 0.08 + 0.4);
+        });
     } catch(e) {}
 }
 
-// === ХАПТИК ===
+// === ХАПТИК — тільки вібрація, без звуку ===
 function hapticTap() {
     try {
         if (tg?.HapticFeedback) {
             tg.HapticFeedback.impactOccurred('light');
         } else if (navigator.vibrate) {
-            navigator.vibrate(10);
+            navigator.vibrate(8);
         }
     } catch(e) {}
 }
@@ -771,7 +916,7 @@ function hapticSuccess() {
         if (tg?.HapticFeedback) {
             tg.HapticFeedback.notificationOccurred('success');
         } else if (navigator.vibrate) {
-            navigator.vibrate([20, 10, 20]);
+            navigator.vibrate([15, 8, 15]);
         }
     } catch(e) {}
 }
@@ -781,7 +926,7 @@ function hapticError() {
         if (tg?.HapticFeedback) {
             tg.HapticFeedback.notificationOccurred('error');
         } else if (navigator.vibrate) {
-            navigator.vibrate([50, 20, 50]);
+            navigator.vibrate([40, 15, 40]);
         }
     } catch(e) {}
 }
@@ -1523,8 +1668,8 @@ async function init() {
 
     checkFounderAccess();
     setupNavigation();
-    generateShopItems(upgrades, upgradesGrid);
-    generateShopItems(Object.values(allAccessories), accessoriesGrid);
+    generateShopItems(upgrades, document.getElementById('upgrades-grid'));
+    generateAccessories();
 
     if (currentAccessoryId && allAccessories[currentAccessoryId]) {
         const el = document.createElement('div');

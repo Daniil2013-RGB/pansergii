@@ -2179,3 +2179,212 @@ body.glitch-theme #theme-particles div {
 .toast.success { border-color: #4CAF50; color: #4CAF50; }
 .toast.error   { border-color: #F44336; color: #F44336; }
 .toast.info    { border-color: var(--accent); color: var(--accent); }
+
+/* ─── Внутрішні вкладки магазину ─────────────────────────────────────────── */
+.shop-tabs-inner {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: var(--bg-card);
+    padding: 6px;
+    border-radius: 14px;
+}
+
+.shop-inner-tab {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.shop-inner-tab.active {
+    background: var(--gradient-gold);
+    color: #000;
+}
+
+.shop-inner-content { display: none; }
+.shop-inner-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+.shop-sub-title {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+/* ─── Картки апгрейдів ────────────────────────────────────────────────────── */
+.upgrades-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.upgrade-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.15s;
+}
+
+.upgrade-card:active { transform: scale(0.98); }
+
+.upgrade-card-tier {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+}
+
+.tier-common     { background: #9E9E9E; }
+.tier-rare       { background: #2196F3; }
+.tier-epic       { background: #9C27B0; }
+.tier-legendary  { background: linear-gradient(180deg, #FFD700, #FF6D00); }
+
+.upgrade-card-emoji { font-size: 2em; flex-shrink: 0; }
+
+.upgrade-card-info { flex: 1; min-width: 0; }
+.upgrade-card-name { font-size: 0.95em; font-weight: 700; margin-bottom: 2px; }
+.upgrade-card-desc { font-size: 0.8em; color: var(--text-secondary); margin-bottom: 4px; }
+.upgrade-card-price { font-size: 0.8em; color: var(--accent); font-weight: 600; }
+
+.upgrade-card-btn {
+    background: var(--gradient-gold);
+    color: #000;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85em;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.upgrade-card-btn:disabled { background: var(--bg-secondary); color: var(--text-secondary); cursor: not-allowed; }
+.upgrade-card-btn.purchased { background: rgba(76,175,80,0.2); color: #4CAF50; }
+
+/* ─── Аксесуари безкоштовні ──────────────────────────────────────────────── */
+.accessories-free-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.acc-free-item {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+}
+
+.acc-free-icon { font-size: 2em; margin-bottom: 4px; }
+.acc-free-name { font-size: 0.7em; color: var(--text-secondary); margin-bottom: 8px; }
+
+.acc-free-btn {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: none;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 0.7em;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s;
+}
+
+.acc-free-btn.acc-active { background: var(--accent); color: #000; }
+.acc-free-btn.acc-locked { background: none; color: var(--text-secondary); cursor: not-allowed; }
+
+/* ─── Преміум аксесуари ──────────────────────────────────────────────────── */
+.accessories-premium-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.acc-premium-card {
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    height: 120px;
+    border: 2px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s;
+}
+
+.acc-premium-card:active { transform: scale(0.98); }
+
+/* Картель — темно-зелений з черепами */
+.acc-premium-cartel {
+    background: linear-gradient(135deg, #1a2a1a, #2d4a2d);
+    border-color: rgba(0,200,0,0.3);
+}
+
+/* Мані — золото з купюрами */
+.acc-premium-money {
+    background: linear-gradient(135deg, #2a2000, #4a3800);
+    border-color: rgba(255,215,0,0.4);
+}
+
+/* Модний — фіолетово-рожевий */
+.acc-premium-fashion {
+    background: linear-gradient(135deg, #2a0a3a, #4a1a5a);
+    border-color: rgba(200,0,255,0.3);
+}
+
+.acc-premium-preview {
+    width: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.acc-premium-emoji { font-size: 3.5em; }
+
+.acc-premium-info {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+.acc-premium-name { font-size: 1.1em; font-weight: 800; }
+.acc-premium-price { font-size: 0.85em; color: var(--accent); font-weight: 600; }
+
+.acc-premium-btn {
+    background: var(--gradient-gold);
+    color: #000;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.85em;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: all 0.2s;
+}
+
+.acc-premium-btn:disabled { background: var(--bg-secondary); color: var(--text-secondary); cursor: not-allowed; }
+.acc-premium-btn.acc-active { background: rgba(76,175,80,0.2); color: #4CAF50; }
