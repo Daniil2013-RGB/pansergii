@@ -2728,3 +2728,36 @@ body.glitch-theme #theme-particles div {
     margin: 4px 0 6px;
     animation: pulse 2s infinite;
 }
+
+/* ─── Вкладка гри — повний екран ────────────────────────────────────────── */
+#tab-game {
+    min-height: calc(100vh - 70px);
+    padding: 12px 16px 16px;
+    display: none;
+    flex-direction: column;
+}
+
+#tab-game.active {
+    display: flex;
+}
+
+.game-screen {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0;
+}
+
+.game-screen .header {
+    flex-shrink: 0;
+}
+
+.game-screen .tap-zone {
+    flex-shrink: 0;
+    margin: 16px auto 8px;
+}
+
+.game-screen .energy-container {
+    flex-shrink: 0;
+    margin-top: 4px;
+}

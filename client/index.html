@@ -18,43 +18,44 @@
     
     <!-- Вкладка: Гра -->
     <div id="tab-game" class="tab-content active">
-        <div class="header">
-            <h1 class="game-title">Пан Сергій</h1>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Очки</div>
-                    <div class="stat-value" id="score">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Рівень</div>
-                    <div class="stat-value" id="level">1</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">За клік</div>
-                    <div class="stat-value" id="click-value">1</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">За секунду</div>
-                    <div class="stat-value" id="auto-click-value">0</div>
+        <div class="game-screen">
+            <div class="header">
+                <h1 class="game-title">Пан Сергій</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Очки</div>
+                        <div class="stat-value" id="score">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Рівень</div>
+                        <div class="stat-value" id="level">1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">За клік</div>
+                        <div class="stat-value" id="click-value">1</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">За секунду</div>
+                        <div class="stat-value" id="auto-click-value">0</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="tap-zone" id="main-character">
-            <img src="https://imgpx.com/is29RsUfHLAk.jpg" alt="Пан Сергій" class="main-character-img">
-        </div>
-        <div class="tap-hint">👆 Тапай на Пана Сергія!</div>
+            <div class="tap-zone" id="main-character">
+                <img src="https://imgpx.com/is29RsUfHLAk.jpg" alt="Пан Сергій" class="main-character-img">
+            </div>
+            <div class="tap-hint">👆 Тапай на Пана Сергія!</div>
 
-        <!-- Енергія -->
-        <div class="energy-container">
-            <div class="energy-header">
-                <span class="energy-label">⚡ Енергія</span>
-                <span class="energy-text" id="energy-text">100 / 100</span>
+            <div class="energy-container">
+                <div class="energy-header">
+                    <span class="energy-label">⚡ Енергія</span>
+                    <span class="energy-text" id="energy-text">700 / 700</span>
+                </div>
+                <div class="energy-bar">
+                    <div class="energy-bar-fill" id="energy-bar-fill"></div>
+                </div>
+                <div class="energy-hint">Відновлюється повністю за 3 години • Авто-фарм працює до 2 год офлайн</div>
             </div>
-            <div class="energy-bar">
-                <div class="energy-bar-fill" id="energy-bar-fill"></div>
-            </div>
-            <div class="energy-hint">Відновлюється повністю за 3 години • Авто-фарм працює до 2 год офлайн</div>
         </div>
     </div>
 
