@@ -431,12 +431,16 @@ function onTap(e) {
             bar.style.animation = 'shake 0.3s';
             setTimeout(() => bar.style.animation = '', 300);
         }
+        hapticError();
         return;
     }
 
     energy = Math.max(0, energy - 1);
     lastEnergyUpdate = Date.now();
     renderEnergy();
+
+    hapticTap();
+    playTapSound();
 
     score += clickValue;
     totalClicks++;
@@ -523,7 +527,8 @@ function updateLevelAndCheckReward() {
     if (newLevel > level) {
         level = newLevel;
         const info = levels[level - 2];
-        alert(info.message);
+        showToast('🎉 ' + info.message, 'success', 4000);
+        hapticSuccess();
         purchasedAccessories[info.rewardId] = true;
         toggleAccessory(allAccessories[info.rewardId]);
         updateButtonStates();
@@ -683,13 +688,15 @@ function spawnSecretCard() {
         if (secretCardsFound === 1 && !purchasedUpgrades['upgrade-secret-1']) {
             purchasedUpgrades['upgrade-secret-1'] = true;
             autoClickValue += 100;
-            alert('Перша секретна карточка!\n+100 очок за секунду назавжди!');
+            showToast('🎁 Перша секретна карточка! +100/сек назавжди!', 'success', 4000);
+            hapticSuccess();
             generateShopItems(upgrades, upgradesGrid);
         } else if (secretCardsFound <= 5) {
             score += 1000;
-            alert('Секретна карточка ' + secretCardsFound + '/5!\n+1000 очок!');
+            showToast('🎁 Карточка ' + secretCardsFound + '/5! +1000 очок!', 'success');
+            hapticSuccess();
         }
-        if (secretCardsFound >= 5) alert('Ви знайшли всі 5 секретних карточок!');
+        if (secretCardsFound >= 5) showToast('🏆 Всі 5 карточок знайдено!', 'success', 4000);
         updateUI();
         saveToLocal();
         card.remove();
@@ -700,7 +707,84 @@ setInterval(() => {
     if (secretCardsFound < 5 && Math.random() < 0.3) spawnSecretCard();
 }, 45000);
 
-// === КЕЙСИ ===
+// === TOAST (замість alert) ===
+function showToast(message, type = 'info', duration = 2500) {
+    let toast = document.getElementById('game-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'game-toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.className = 'toast ' + type;
+    toast.classList.add('show');
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+// === ЗВУК ===
+const sounds = {
+    caseOpen: new Audio('sounds/case-open.mp3'),
+    tap: null // генеруємо через Web Audio API
+};
+
+// Web Audio для звуку тапу (без файлу)
+let audioCtx = null;
+function playTapSound() {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime + 0.08);
+    } catch(e) {}
+}
+
+function playCaseOpenSound() {
+    try {
+        sounds.caseOpen.currentTime = 0;
+        sounds.caseOpen.volume = 0.7;
+        sounds.caseOpen.play().catch(() => {});
+    } catch(e) {}
+}
+
+// === ХАПТИК ===
+function hapticTap() {
+    try {
+        if (tg?.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred('light');
+        } else if (navigator.vibrate) {
+            navigator.vibrate(10);
+        }
+    } catch(e) {}
+}
+
+function hapticSuccess() {
+    try {
+        if (tg?.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('success');
+        } else if (navigator.vibrate) {
+            navigator.vibrate([20, 10, 20]);
+        }
+    } catch(e) {}
+}
+
+function hapticError() {
+    try {
+        if (tg?.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('error');
+        } else if (navigator.vibrate) {
+            navigator.vibrate([50, 20, 50]);
+        }
+    } catch(e) {}
+}
 const CASES = {
     basic: {
         name: 'Базовий кейс', emoji: '📦', price: 2000000,
@@ -803,7 +887,9 @@ window.confirmOpenCase = function() {
     score -= c.price;
     updateUI();
     saveToLocal();
-    syncToFirebase(); // Одразу зберегти витрату в Firebase
+    syncToFirebase();
+    playCaseOpenSound();
+    hapticSuccess();
 
     closeCasePreview();
     startRoulette(currentCaseType);
@@ -1344,38 +1430,38 @@ function checkFounderAccess() {
     }
 }
 
-window.giveCoins = () => { score += 10000; updateUI(); saveToLocal(); alert('+10,000 очок!'); };
+window.giveCoins = () => { score += 10000; updateUI(); saveToLocal(); showToast('💰 +10,000 очок!', 'success'); };
 
 window.addCustomCoins = () => {
     const input = document.getElementById('founder-coins-input');
     const amount = parseInt(input.value);
-    if (!amount || isNaN(amount)) { alert('Введіть кількість!'); return; }
+    if (!amount || isNaN(amount)) { showToast('❌ Введіть кількість!', 'error'); return; }
     score += amount;
     updateUI();
     saveToLocal();
-    renderLabRecipes(); // Оновити рецепти
+    renderLabRecipes();
     input.value = '';
-    alert(`✅ Додано ${amount.toLocaleString()} очок!`);
+    showToast('✅ Додано ' + amount.toLocaleString() + ' очок!', 'success');
 };
 
 window.addFragment = (type) => {
     fragments[type] = (fragments[type] || 0) + 1;
     updateInventory();
     saveToLocal();
-    renderLabRecipes(); // Оновити рецепти
+    renderLabRecipes();
 };
 
 window.addCustomFragments = () => {
     const type = document.getElementById('founder-fragment-select').value;
     const amount = parseInt(document.getElementById('founder-fragment-amount').value);
-    if (!amount || isNaN(amount) || amount < 1) { alert('Введіть кількість!'); return; }
+    if (!amount || isNaN(amount) || amount < 1) { showToast('❌ Введіть кількість!', 'error'); return; }
     fragments[type] = (fragments[type] || 0) + amount;
     updateInventory();
     saveToLocal();
-    renderLabRecipes(); // Оновити рецепти
+    renderLabRecipes();
     document.getElementById('founder-fragment-amount').value = '';
     const names = { standard:'Стандартний', rare:'Рідкісний', smart:'Розумний', diamond:'Алмазний', competitive:'Змагальний', strange:'Дивний' };
-    alert(`✅ Додано ${amount}× ${names[type]}!`);
+    showToast('✅ Додано ' + amount + '× ' + names[type] + '!', 'success');
 };
 window.unlockAll = () => {
     upgrades.forEach(u => {

@@ -2062,3 +2062,120 @@ body.glitch-theme #theme-particles div {
     position: relative;
     z-index: 1;
 }
+
+/* ─── Дружній інтерфейс ──────────────────────────────────────────────────── */
+
+/* Більші кнопки навігації */
+.nav-item {
+    min-width: 56px;
+    padding: 10px 8px;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.nav-item.active {
+    background: rgba(255, 215, 0, 0.15);
+    border-radius: 12px;
+}
+
+.nav-icon { font-size: 1.6em; }
+
+/* Пульсація кнопки тапу */
+.tap-zone {
+    animation: tapGlow 3s ease-in-out infinite;
+}
+
+@keyframes tapGlow {
+    0%, 100% { box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4); }
+    50%       { box-shadow: 0 10px 60px rgba(102, 126, 234, 0.7), 0 0 30px rgba(102, 126, 234, 0.3); }
+}
+
+.tap-zone:active {
+    animation: none;
+    transform: scale(0.92);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* Підказка "Тапай!" */
+.tap-hint {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    margin-top: -16px;
+    margin-bottom: 8px;
+    animation: pulse 2s infinite;
+}
+
+/* Картки статистики — більш округлі */
+.stat-card {
+    border-radius: 16px;
+    padding: 14px 10px;
+    transition: transform 0.2s;
+}
+
+.stat-card:active { transform: scale(0.97); }
+
+/* Заголовок гри */
+.game-title {
+    font-size: 2.2em;
+    letter-spacing: 1px;
+}
+
+/* Кнопки магазину */
+.shop-button {
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 0.9em;
+    transition: all 0.2s;
+}
+
+.shop-button:not(:disabled):active {
+    transform: scale(0.95);
+}
+
+/* Картки магазину */
+.shop-item {
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.2s;
+}
+
+.shop-item:active { transform: scale(0.98); }
+
+/* Анімація shake для енергії */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(-6px); }
+    75%       { transform: translateX(6px); }
+}
+
+/* Тост повідомлення */
+.toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 0.9em;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 300;
+    border: 1px solid rgba(255,255,255,0.1);
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.toast.success { border-color: #4CAF50; color: #4CAF50; }
+.toast.error   { border-color: #F44336; color: #F44336; }
+.toast.info    { border-color: var(--accent); color: var(--accent); }
