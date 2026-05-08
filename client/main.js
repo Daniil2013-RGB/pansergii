@@ -457,7 +457,7 @@ function onTap(e) {
     renderEnergy();
 
     hapticTap();
-    playTapSound();
+    // playTapSound() — прибрано, залишаємо тільки хаптик
 
     score += clickValue;
     totalClicks++;
@@ -731,15 +731,26 @@ document.addEventListener('click', e => {
 });
 
 function toggleAccessory(accessory) {
+    // Видалити старий аксесуар
     const ex = mainCharacter.querySelector('.accessory');
     if (ex) ex.remove();
+    // Прибрати старі класи теми аксесуару
+    mainCharacter.className = 'tap-zone';
+
     if (currentAccessoryId === accessory.id) {
         currentAccessoryId = null;
     } else {
-        const el = document.createElement('div');
-        el.className = 'accessory ' + accessory.className;
-        mainCharacter.appendChild(el);
         currentAccessoryId = accessory.id;
+
+        if (accessory.free) {
+            // Базові — div поверх фото
+            const el = document.createElement('div');
+            el.className = 'accessory ' + accessory.className;
+            mainCharacter.appendChild(el);
+        } else {
+            // Преміум — змінюємо стиль самої кнопки тапу
+            mainCharacter.classList.add('acc-style-' + accessory.id.replace('acc-', ''));
+        }
     }
 }
 
@@ -1672,9 +1683,14 @@ async function init() {
     generateAccessories();
 
     if (currentAccessoryId && allAccessories[currentAccessoryId]) {
-        const el = document.createElement('div');
-        el.className = 'accessory ' + allAccessories[currentAccessoryId].className;
-        mainCharacter.appendChild(el);
+        const acc = allAccessories[currentAccessoryId];
+        if (acc.free) {
+            const el = document.createElement('div');
+            el.className = 'accessory ' + acc.className;
+            mainCharacter.appendChild(el);
+        } else {
+            mainCharacter.classList.add('acc-style-' + acc.id.replace('acc-', ''));
+        }
     }
 
     // Застосувати збережену тему

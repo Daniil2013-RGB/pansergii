@@ -2388,3 +2388,89 @@ body.glitch-theme #theme-particles div {
 
 .acc-premium-btn:disabled { background: var(--bg-secondary); color: var(--text-secondary); cursor: not-allowed; }
 .acc-premium-btn.acc-active { background: rgba(76,175,80,0.2); color: #4CAF50; }
+
+/* ─── Преміум стилі кнопки тапу ─────────────────────────────────────────── */
+
+/* Картель — темно-зелений з черепами */
+.tap-zone.acc-style-cartel {
+    background: linear-gradient(135deg, #0d2b0d, #1a4a1a, #0d2b0d);
+    box-shadow: 0 0 40px rgba(0, 180, 0, 0.6), 0 0 80px rgba(0, 100, 0, 0.3);
+    border: 3px solid rgba(0, 200, 0, 0.5);
+    animation: cartelPulse 2s ease-in-out infinite;
+}
+
+@keyframes cartelPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(0,180,0,0.6), 0 0 80px rgba(0,100,0,0.3); }
+    50%       { box-shadow: 0 0 60px rgba(0,220,0,0.8), 0 0 100px rgba(0,150,0,0.5); }
+}
+
+.tap-zone.acc-style-cartel::before {
+    content: '💀';
+    position: absolute;
+    top: 8px; left: 8px;
+    font-size: 1.2em;
+    opacity: 0.8;
+}
+
+.tap-zone.acc-style-cartel::after {
+    content: '💀';
+    position: absolute;
+    bottom: 8px; right: 8px;
+    font-size: 1.2em;
+    opacity: 0.8;
+}
+
+/* Мані — золото з купюрами */
+.tap-zone.acc-style-money {
+    background: linear-gradient(135deg, #3a2800, #6a4a00, #3a2800);
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.7), 0 0 80px rgba(255, 165, 0, 0.4);
+    border: 3px solid rgba(255, 215, 0, 0.6);
+    animation: moneyPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes moneyPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(255,215,0,0.7), 0 0 80px rgba(255,165,0,0.4); }
+    50%       { box-shadow: 0 0 70px rgba(255,215,0,1), 0 0 120px rgba(255,165,0,0.6); }
+}
+
+.tap-zone.acc-style-money::before {
+    content: '💵';
+    position: absolute;
+    top: 8px; left: 8px;
+    font-size: 1.2em;
+}
+
+.tap-zone.acc-style-money::after {
+    content: '💰';
+    position: absolute;
+    bottom: 8px; right: 8px;
+    font-size: 1.2em;
+}
+
+/* Модний Сергій — фіолетово-рожевий */
+.tap-zone.acc-style-fashion {
+    background: linear-gradient(135deg, #2a0040, #6a00aa, #2a0040);
+    box-shadow: 0 0 40px rgba(180, 0, 255, 0.7), 0 0 80px rgba(255, 0, 200, 0.3);
+    border: 3px solid rgba(200, 0, 255, 0.6);
+    animation: fashionPulse 2s ease-in-out infinite;
+}
+
+@keyframes fashionPulse {
+    0%   { box-shadow: 0 0 40px rgba(180,0,255,0.7), 0 0 80px rgba(255,0,200,0.3); }
+    50%  { box-shadow: 0 0 60px rgba(255,0,200,0.8), 0 0 100px rgba(180,0,255,0.5); }
+    100% { box-shadow: 0 0 40px rgba(180,0,255,0.7), 0 0 80px rgba(255,0,200,0.3); }
+}
+
+.tap-zone.acc-style-fashion::before {
+    content: '🕶️';
+    position: absolute;
+    top: 8px; left: 8px;
+    font-size: 1.2em;
+}
+
+.tap-zone.acc-style-fashion::after {
+    content: '✨';
+    position: absolute;
+    bottom: 8px; right: 8px;
+    font-size: 1.2em;
+}
