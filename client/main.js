@@ -865,6 +865,31 @@ setInterval(() => {
     if (secretCardsFound < 5 && Math.random() < 0.3) spawnSecretCard();
 }, 45000);
 
+// === WELCOME ЕКРАН ===
+function showWelcome(name) {
+    const el = document.createElement('div');
+    el.id = 'welcome-overlay';
+    el.innerHTML = `
+        <div class="welcome-content">
+            <div class="welcome-emoji">👋</div>
+            <div class="welcome-text">Welcome,</div>
+            <div class="welcome-name">${name}!</div>
+        </div>
+    `;
+    document.body.appendChild(el);
+
+    // Анімація появи
+    requestAnimationFrame(() => {
+        el.classList.add('show');
+    });
+
+    // Зникає через 2 секунди
+    setTimeout(() => {
+        el.classList.add('hide');
+        setTimeout(() => el.remove(), 500);
+    }, 2000);
+}
+
 // === TOAST (замість alert) ===
 function showToast(message, type = 'info', duration = 2500) {
     let toast = document.getElementById('game-toast');
@@ -1722,7 +1747,12 @@ async function init() {
 
     updateUI();
     loadingScreen.style.display = 'none';
-    appDiv.style.display = 'block';
+    appDiv.style.display = 'flex';
+    appDiv.style.flexDirection = 'column';
+
+    // Welcome екран
+    const welcomeName = telegramUser?.first_name || telegramUser?.username || 'Гравець';
+    showWelcome(welcomeName);
 
     if (secretCardsFound < 5) setTimeout(spawnSecretCard, 10000);
 
