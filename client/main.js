@@ -1747,8 +1747,7 @@ async function init() {
 
     updateUI();
     loadingScreen.style.display = 'none';
-    appDiv.style.display = 'flex';
-    appDiv.style.flexDirection = 'column';
+    appDiv.style.display = 'block';
 
     // Welcome екран
     const welcomeName = telegramUser?.first_name || telegramUser?.username || 'Гравець';
