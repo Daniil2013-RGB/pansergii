@@ -1267,7 +1267,7 @@ window.selectTheme = function(themeId) {
 window.checkSecretCode = function() {
     const input = document.getElementById('secret-code-input').value.trim();
     const resultEl = document.getElementById('secret-code-result');
-    const CIPHER = '31f953825106c4204b88ba535eac91bedafc7ab2231f2efe1badb3f14dbb02da';
+    const CIPHER = 'Яіпэы пе яеіанэя кэмехе олдбэпвиы ане пэмовнаіжзнрпэанэ67ормвнмрмвнйэпэблнэмэковнаіжзнрпежяфепвищ';
     const ANSWER = 'Вітаю тебе, ти отримав 50 зірок, Дані Кепенку з 6 класу та отримаєш їх';
 
     if (input === CIPHER) {
