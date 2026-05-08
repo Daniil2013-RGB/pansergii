@@ -18,6 +18,17 @@ let telegramUser = null;
 if (tg) {
     tg.ready();
     tg.expand();
+    
+    // Повноекранний режим (Telegram 8.0+)
+    if (tg.requestFullscreen) {
+        tg.requestFullscreen();
+    }
+    
+    // Вимкнути вертикальні свайпи щоб не закривалось
+    if (tg.disableVerticalSwipes) {
+        tg.disableVerticalSwipes();
+    }
+
     telegramUser = tg.initDataUnsafe?.user || null;
     if (tg.themeParams?.bg_color) {
         document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
