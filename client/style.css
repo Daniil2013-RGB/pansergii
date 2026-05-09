@@ -2756,7 +2756,7 @@ body.glitch-theme #theme-particles div {
 .game-screen .tap-zone {
     width: 210px;
     height: 210px;
-    margin: auto;
+    margin: 8px auto auto;
     flex-shrink: 0;
 }
 
