@@ -2731,32 +2731,29 @@ body.glitch-theme #theme-particles div {
 
 /* ─── Вкладка гри — повний екран ────────────────────────────────────────── */
 #tab-game {
-    height: calc(100vh - 70px);
     padding: 10px 16px 12px;
     display: none;
-    flex-direction: column;
 }
 
 #tab-game.active {
-    display: flex;
+    display: block;
 }
 
 .game-screen {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    gap: 0;
+    align-items: center;
 }
 
 .game-screen .header {
-    flex-shrink: 0;
-    margin-bottom: 0;
+    width: 100%;
+    margin-bottom: 12px;
 }
 
 .game-screen .tap-zone {
-    width: 210px;
-    height: 210px;
-    margin: 8px auto auto;
+    width: 200px;
+    height: 200px;
+    margin: 12px auto 8px;
     flex-shrink: 0;
 }
 
@@ -2765,6 +2762,6 @@ body.glitch-theme #theme-particles div {
 }
 
 .game-screen .energy-container {
-    flex-shrink: 0;
-    margin-top: 0;
+    width: 100%;
+    margin-top: 8px;
 }
